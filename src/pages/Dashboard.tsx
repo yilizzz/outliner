@@ -45,54 +45,62 @@ const Dashboard: React.FC = () => {
       setIsCreating(false);
     }
   };
-  useEffect(() => {
-    let mounted = true;
-    if (!isAuthenticated) {
-      navigate("/", { replace: true });
-      return;
-    }
-    if (checkedRef.current) {
-      setIsAuthChecking(false);
-      return;
-    }
+  // useEffect(() => {
+  //   let mounted = true;
+  //   if (!isAuthenticated) {
+  //     navigate("/", { replace: true });
+  //     return;
+  //   }
+  //   if (checkedRef.current) {
+  //     setIsAuthChecking(false);
+  //     return;
+  //   }
 
-    const check = async () => {
-      try {
-        const isValid = await checkAndRefreshToken();
-        if (!mounted) return;
-        if (!isValid) {
-          navigate("/", { replace: true });
-          return;
-        }
-        checkedRef.current = true;
-      } catch (e) {
-        if (mounted) navigate("/", { replace: true });
-      } finally {
-        if (mounted) setIsAuthChecking(false);
-      }
-    };
+  //   const check = async () => {
+  //     try {
+  //       const isValid = await checkAndRefreshToken();
+  //       if (!mounted) return;
+  //       if (!isValid) {
+  //         navigate("/", { replace: true });
+  //         return;
+  //       }
+  //       checkedRef.current = true;
+  //     } catch (e) {
+  //       if (mounted) navigate("/", { replace: true });
+  //     } finally {
+  //       if (mounted) setIsAuthChecking(false);
+  //     }
+  //   };
 
-    check();
+  //   check();
 
-    return () => {
-      mounted = false;
-    };
-  }, [isAuthenticated, checkAndRefreshToken]);
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, [isAuthenticated, checkAndRefreshToken]);
 
-  if (isAuthChecking || !isAuthenticated) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-        <p>正在验证您的会话安全...</p>
-      </div>
-    );
-  }
+  // if (isAuthChecking || !isAuthenticated) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen bg-gray-100">
+  //       <p>正在验证您的会话安全...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
       <h1>我的笔记 ({projects?.length})</h1>
       <ul>
         {projects?.map((p) => (
-          <li key={p.id}>{p.title}</li>
+          <li key={p.id}>
+            <button
+              onClick={() => {
+                navigate(`/project/${p.id}`);
+              }}
+            >
+              {p.title}
+            </button>
+          </li>
         ))}
       </ul>
       <button onClick={handleAddProject} disabled={isCreating}>

@@ -102,7 +102,9 @@ const PinSetupScreen: React.FC = () => {
           expires: expiresAbsolute(authResponse.data.expires),
         };
         loginWithAuth(auth);
-        await checkAndRefreshToken();
+        // 2. 登录成功后，useTokenRefresh 会自动开始工作
+        //    不需要手动调用 checkAndRefreshToken
+        // await checkAndRefreshToken();
 
         // --- 步骤 4: 加密 Directus 凭证 ---
         const encryptedCredentials = await mockDirectusAPI.encryptData(

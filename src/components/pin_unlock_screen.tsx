@@ -85,7 +85,9 @@ const PinUnlockScreen: React.FC = () => {
         };
 
         loginWithAuth(auth);
-        await checkAndRefreshToken();
+        //  登录成功后，auth state 更新
+        //  app根组件中的useTokenRefresh 会自动触发并调度刷新
+        // await checkAndRefreshToken();
         // 成功：跳转到主应用界面
         navigate("/dashboard");
       } catch (e) {
@@ -97,13 +99,7 @@ const PinUnlockScreen: React.FC = () => {
         setIsProcessing(false);
       }
     },
-    [
-      isProcessing,
-      loadInitialData,
-      loginWithAuth,
-      navigate,
-      checkAndRefreshToken,
-    ]
+    [isProcessing, loadInitialData, loginWithAuth, navigate]
   );
 
   return (

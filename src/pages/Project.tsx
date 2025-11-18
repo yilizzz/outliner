@@ -1,16 +1,50 @@
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useFetchProjectById } from "../queries/projects.queries";
+import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
+import { AddChapterModal } from "../components/chapter_modal";
+
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { data: project } = useFetchProjectById(slug || null);
+  const { data: chaptersData } = useFetchChaptersByProjectId(slug || null);
 
+  const [chapters, setChapters] = useState<any>([]);
+
+  // 同步从 API 获取的 chapters 到本地状态
   useEffect(() => {
-    console.log("Project component mounted");
-    console.log("Project ID:", slug);
-  }, [slug]);
+    if (chaptersData) {
+      setChapters(chaptersData);
+    }
+  }, [chaptersData]);
+
+  // 处理新增章节
+  const handleChapterCreated = (newChapter: any) => {
+    setChapters((prev) =>
+      [...prev, newChapter].sort((a, b) => a.sort - b.sort)
+    );
+  };
 
   return (
     <div>
-      <h1>Project {slug}</h1>
+      <h1>{project?.title}</h1>
+      <p>Last updated: {project?.date_updated}</p>
+      {project?.chapters && project.chapters.length > 0 ? (
+        <ul>
+          {chapters.map((chapter: any) => (
+            <li key={chapter.id}>
+              <h2>{chapter.title}</h2>
+              <div dangerouslySetInnerHTML={{ __html: chapter.content }} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No chapters available.</p>
+      )}
+      <AddChapterModal
+        projectId={slug}
+        onChapterCreated={handleChapterCreated}
+      />
     </div>
   );
 };

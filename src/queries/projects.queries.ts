@@ -33,3 +33,19 @@ export const useCreateProject = (userId: string | null) => {
     },
   });
 };
+export const useFetchProjectById = (projectId: string | null) => {
+  return useQuery({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
+      const projects = await directus.request(
+        readItems("projects", {
+          filter: { id: { _eq: projectId } },
+          fields: ["id", "title", "chapters", "date_updated"],
+        })
+      );
+      return projects[0] || null;
+    },
+    enabled: !!projectId,
+  });
+};

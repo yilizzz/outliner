@@ -43,18 +43,6 @@ export const useTokenRefresh = () => {
         return false;
       }
 
-      // const response = await directus.refresh({
-      //   mode: "json",
-      //   refresh_token: auth.refresh_token,
-      // });
-      // console.log("SDK refresh 响应:", response);
-
-      // const newAuthResponse = {
-      //   access_token: response.access_token,
-      //   refresh_token: response.refresh_token,
-      //   expires: expiresAbsolute(response.expires),
-      // };
-
       const response = await fetch(
         `${import.meta.env.VITE_DIRECTUS_URL}/auth/refresh`,
         {
