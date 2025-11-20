@@ -1,16 +1,19 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useFetchProjectById } from "../queries/projects.queries";
-import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
+import {
+  useFetchChaptersByProjectId,
+  useDeleteChapter,
+} from "../queries/chapter.queries";
 import { AddChapterModal } from "../components/chapter_modal";
-
+import type { Schema } from "../lib/directus";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: project } = useFetchProjectById(slug || null);
   const { data: chaptersData } = useFetchChaptersByProjectId(slug || null);
 
-  const [chapters, setChapters] = useState<any>([]);
-
+  const [chapters, setChapters] = useState<Array<Schema["chapters"]>>([]);
+  const { mutateAsync: deleteMutation } = useDeleteChapter();
   // 同步从 API 获取的 chapters 到本地状态
   useEffect(() => {
     if (chaptersData) {
@@ -19,7 +22,7 @@ const Project: React.FC = () => {
   }, [chaptersData]);
 
   // 处理新增章节
-  const handleChapterCreated = (newChapter: any) => {
+  const handleChapterCreated = (newChapter: Schema["chapters"]) => {
     setChapters((prev) =>
       [...prev, newChapter].sort((a, b) => a.sort - b.sort)
     );
@@ -31,10 +34,16 @@ const Project: React.FC = () => {
       <p>Last updated: {project?.date_updated}</p>
       {project?.chapters && project.chapters.length > 0 ? (
         <ul>
-          {chapters.map((chapter: any) => (
+          {chapters.map((chapter: Schema["chapters"]) => (
             <li key={chapter.id}>
               <h2>{chapter.title}</h2>
-              <div dangerouslySetInnerHTML={{ __html: chapter.content }} />
+              <button
+                onClick={() => {
+                  deleteMutation(chapter.id);
+                }}
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>

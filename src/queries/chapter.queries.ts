@@ -1,8 +1,9 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
-import { createItem, readItems } from "@directus/sdk";
+import { createItem, readItems, deleteItem } from "@directus/sdk";
 
 export const useCreateChapter = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: {
       projectId: string;
@@ -18,6 +19,10 @@ export const useCreateChapter = () => {
           sort: data.sort || null,
         })
       );
+    },
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries(["chapters"]);
     },
   });
 };
@@ -35,5 +40,16 @@ export const useFetchChaptersByProjectId = (projectId: string | null) => {
       );
     },
     enabled: !!projectId,
+  });
+};
+export const useDeleteChapter = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (chapterId: string) => {
+      return directus.request(deleteItem("chapters", chapterId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["chapters"]);
+    },
   });
 };

@@ -12,7 +12,7 @@ export interface Schema {
     project: string;
     title: string;
     content: string;
-    sort: string;
+    sort: number;
   };
   users: {
     id: string;

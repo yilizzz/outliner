@@ -1,10 +1,14 @@
 import * as React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Label from "@radix-ui/react-label";
-import { useCreateChapter } from "../queries/chapter.queries";
+import {
+  useCreateChapter,
+  useFetchChaptersByProjectId,
+} from "../queries/chapter.queries";
+import type { Schema } from "../lib/directus";
 interface AddChapterModalProps {
   projectId: string;
-  onChapterCreated: (newChapter: any) => void;
+  onChapterCreated: (newChapter: Schema["chapters"]) => void;
 }
 
 export function AddChapterModal({
@@ -15,7 +19,14 @@ export function AddChapterModal({
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const { mutateAsync, isPending } = useCreateChapter();
+  const { mutateAsync } = useCreateChapter();
+  const { data: chapters } = useFetchChaptersByProjectId(projectId);
+  const getNextSortOrder = () => {
+    if (!chapters || chapters.length === 0) return 1; // 默认为 1 或 0
+    // 提取所有 sort 值并找到最大值
+    const maxSort = Math.max(...chapters.map((c) => c.sort || 0));
+    return maxSort + 1;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -26,6 +37,7 @@ export function AddChapterModal({
         projectId,
         title: title.trim(),
         content: content.trim() || null,
+        sort: getNextSortOrder(),
       });
       onChapterCreated(res); // 通知父组件更新列表
       setOpen(false);

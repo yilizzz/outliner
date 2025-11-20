@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { createUser } from "@directus/sdk";
 import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
@@ -14,9 +14,7 @@ import { directus } from "../lib/directus";
 import { useSecureData } from "../stores/secure_data_store";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
-import { useTokenRefresh } from "../hooks/use_token_refresh";
 const ITERATIONS = 200000;
-const UserRoleID = "1f582abf-5b3b-4601-9082-cb7adf279daa";
 const PinSetupScreen: React.FC = () => {
   interface Values {
     pin: string;
@@ -25,7 +23,6 @@ const PinSetupScreen: React.FC = () => {
   const navigate = useNavigate();
   const { saveInitialData } = useSecureData();
   const { saveUserIdToStorage, loginWithAuth } = useAuthStore();
-  const { checkAndRefreshToken } = useTokenRefresh();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const PinSetSchema = Yup.object().shape({
@@ -64,7 +61,7 @@ const PinSetupScreen: React.FC = () => {
           createUser({
             email: `${username}@example.com`,
             password: password,
-            role: UserRoleID,
+            role: import.meta.env.VITE_DIRECTUS_ROLE_ID,
             status: "active",
           })
         );
