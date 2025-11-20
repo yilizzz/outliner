@@ -7,6 +7,7 @@ import {
 } from "../queries/chapter.queries";
 import { AddChapterModal } from "../components/chapter_modal";
 import type { Schema } from "../lib/directus";
+import { ChapterList } from "../components/chapter_list";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: project } = useFetchProjectById(slug || null);
@@ -32,24 +33,7 @@ const Project: React.FC = () => {
     <div>
       <h1>{project?.title}</h1>
       <p>Last updated: {project?.date_updated}</p>
-      {project?.chapters && project.chapters.length > 0 ? (
-        <ul>
-          {chapters.map((chapter: Schema["chapters"]) => (
-            <li key={chapter.id}>
-              <h2>{chapter.title}</h2>
-              <button
-                onClick={() => {
-                  deleteMutation(chapter.id);
-                }}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No chapters available.</p>
-      )}
+      <ChapterList projectId={slug} />
       <AddChapterModal
         projectId={slug}
         onChapterCreated={handleChapterCreated}
