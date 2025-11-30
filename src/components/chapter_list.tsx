@@ -15,8 +15,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useQuery } from "@tanstack/react-query";
 import type { Schema } from "../lib/directus";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
 import { useState } from "react";
@@ -45,9 +45,9 @@ const SortableChapterItem = ({ chapter }: { chapter: Schema["chapters"] }) => {
       style={style}
       className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm mb-2 cursor-move hover:bg-gray-50"
       {...attributes}
+      {...listeners}
     >
       <button
-        {...listeners}
         className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
         aria-label="拖拽排序"
       >
@@ -81,12 +81,15 @@ const DragOverlayItem = ({
 export const ChapterList = ({ projectId }: { projectId: string }) => {
   const { data: chapters = [], isLoading } =
     useFetchChaptersByProjectId(projectId);
-  const { mutate: updateOrder } = useUpdateChapterOrder();
+  const { mutate: updateOrder } = useUpdateChapterOrder(projectId);
+  const queryClient = useQueryClient();
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -94,19 +97,27 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
 
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id);
+    console.log("drag-start", event.active.id);
   };
 
   const handleDragEnd = (event: any) => {
     setActiveId(null);
     const { active, over } = event;
+    console.log("drag-end", { active: active?.id, over: over?.id });
 
     if (!over || active.id === over.id) return;
 
     const oldIndex = chapters.findIndex((ch) => ch.id === active.id);
     const newIndex = chapters.findIndex((ch) => ch.id === over.id);
 
-    // 计算新顺序
     const reordered = arrayMove(chapters, oldIndex, newIndex);
+    const reorderedWithSort = reordered.map((chapter, index) => ({
+      ...chapter,
+      sort: index + 1,
+    }));
+
+    // 先同步更新缓存，避免视觉回跳
+    queryClient.setQueryData(["chapters", projectId], reorderedWithSort);
 
     const updates: { id: string; sort: number }[] = reordered.map(
       (chapter, index) => ({
@@ -115,7 +126,6 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       })
     );
 
-    // 调用 mutation
     updateOrder(updates);
   };
 
@@ -128,7 +138,10 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={chapters} strategy={verticalListSortingStrategy}>
+      <SortableContext
+        items={chapters.map((ch) => ch.id)}
+        strategy={verticalListSortingStrategy}
+      >
         <div className="space-y-2">
           {chapters.map((chapter) => (
             <SortableChapterItem key={chapter.id} chapter={chapter} />
