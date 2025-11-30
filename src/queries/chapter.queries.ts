@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
-import { createItem, readItems, deleteItem, updateItems } from "@directus/sdk";
+import {
+  createItem,
+  readItems,
+  deleteItem,
+  updateItems,
+  updateItem,
+} from "@directus/sdk";
 import type { Schema } from "../lib/directus";
 export const useCreateChapter = () => {
   const queryClient = useQueryClient();
@@ -50,19 +56,24 @@ export const useDeleteChapter = () => {
 };
 
 const updateChaptersOrder = async (updates: { id: string; sort: number }[]) => {
-  const result = await directus.request(updateItems("chapter", updates));
+  const result = await Promise.all(
+    updates.map((u) =>
+      directus.request(updateItem("chapters", u.id, { sort: u.sort }))
+    )
+  );
   return result;
 };
 
-export const useUpdateChapterOrder = () => {
+export const useUpdateChapterOrder = (projectId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateChaptersOrder,
     onMutate: async (newOrders) => {
-      await queryClient.cancelQueries({ queryKey: ["chapters"] });
+      await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
       const previous = queryClient.getQueryData<Schema["chapters"][]>([
         "chapters",
+        projectId,
       ]);
 
       const updated = [...(previous || [])];
@@ -72,17 +83,17 @@ export const useUpdateChapterOrder = () => {
       });
       updated.sort((a, b) => a.sort - b.sort);
 
-      queryClient.setQueryData(["chapters"], updated);
+      queryClient.setQueryData(["chapters", projectId], updated);
       return { previous };
     },
     onError: (err, vars, context) => {
       console.error("Update order failed:", err);
       if (context?.previous) {
-        queryClient.setQueryData(["chapters"], context.previous);
+        queryClient.setQueryData(["chapters", projectId], context.previous);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapters"] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
     },
   });
 };
