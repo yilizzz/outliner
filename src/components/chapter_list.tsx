@@ -19,10 +19,18 @@ import type { Schema } from "../lib/directus";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
+import { useUpdateChapter } from "../queries/chapter.queries";
+import { useDeleteChapterInProject } from "../queries/chapter.queries";
 import { useState } from "react";
 
 // 单个章节项（可排序）
-const SortableChapterItem = ({ chapter }: { chapter: Schema["chapters"] }) => {
+const SortableChapterItem = ({
+  chapter,
+  projectId,
+}: {
+  chapter: Schema["chapters"];
+  projectId: string;
+}) => {
   const {
     attributes,
     listeners,
@@ -31,6 +39,12 @@ const SortableChapterItem = ({ chapter }: { chapter: Schema["chapters"] }) => {
     transition,
     isDragging,
   } = useSortable({ id: chapter.id });
+  const { mutateAsync: updateChapter } = useUpdateChapter(projectId);
+  const { mutateAsync: deleteChapter } = useDeleteChapterInProject(projectId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(chapter.title || "");
+  const [content, setContent] = useState(chapter.content || "");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -39,23 +53,96 @@ const SortableChapterItem = ({ chapter }: { chapter: Schema["chapters"] }) => {
     zIndex: isDragging ? 100 : "auto",
   };
 
+  const preview = (chapter.content || "").slice(0, 10);
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm mb-2 cursor-move hover:bg-gray-50"
       {...attributes}
-      {...listeners}
+      {...(isEditing ? {} : listeners)}
     >
-      <button
-        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
-        aria-label="拖拽排序"
-      >
+      <button className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600" aria-label="拖拽排序">
         ☰
       </button>
       <div className="flex-1">
-        <h3 className="font-medium">{chapter.title}</h3>
+        {!isEditing ? (
+          <h3 className="font-medium">
+            {chapter.title}
+            <span className="ml-2 text-sm text-gray-500">{preview}</span>
+          </h3>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="border rounded px-2 py-1"
+              placeholder="标题"
+            />
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={3}
+              className="border rounded px-2 py-1"
+              placeholder="内容"
+            />
+          </div>
+        )}
       </div>
+      {!isEditing ? (
+        <div className="flex gap-2">
+          <button
+            className="px-2 py-1 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={() => setIsEditing(true)}
+          >
+            编辑
+          </button>
+          <button
+            className="px-2 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={async () => {
+              if (isDeleting) return;
+              const ok = window.confirm("确认删除该章节？");
+              if (!ok) return;
+              try {
+                setIsDeleting(true);
+                await deleteChapter(chapter.id);
+              } finally {
+                setIsDeleting(false);
+              }
+            }}
+          >
+            {isDeleting ? "删除中..." : "删除"}
+          </button>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <button
+            className="px-2 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={async () => {
+              await updateChapter({ id: chapter.id, title, content });
+              setIsEditing(false);
+            }}
+          >
+            保存
+          </button>
+          <button
+            className="px-2 py-1 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={() => {
+              setTitle(chapter.title || "");
+              setContent(chapter.content || "");
+              setIsEditing(false);
+            }}
+          >
+            取消
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -144,7 +231,7 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       >
         <div className="space-y-2">
           {chapters.map((chapter) => (
-            <SortableChapterItem key={chapter.id} chapter={chapter} />
+            <SortableChapterItem key={chapter.id} chapter={chapter} projectId={projectId} />
           ))}
         </div>
       </SortableContext>

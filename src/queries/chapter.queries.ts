@@ -97,3 +97,47 @@ export const useUpdateChapterOrder = (projectId: string) => {
     },
   });
 };
+
+export const useUpdateChapter = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; title: string; content: string }) => {
+      return directus.request(
+        updateItem("chapters", data.id, {
+          title: data.title,
+          content: data.content,
+        })
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
+    },
+  });
+};
+
+export const useDeleteChapterInProject = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (chapterId: string) => {
+      return directus.request(deleteItem("chapters", chapterId));
+    },
+    onMutate: async (chapterId) => {
+      await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
+      const previous = queryClient.getQueryData<Schema["chapters"][]>([
+        "chapters",
+        projectId,
+      ]);
+      const updated = (previous || []).filter((ch) => ch.id !== chapterId);
+      queryClient.setQueryData(["chapters", projectId], updated);
+      return { previous };
+    },
+    onError: (err, vars, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(["chapters", projectId], ctx.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
+    },
+  });
+};
