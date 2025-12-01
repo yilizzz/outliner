@@ -17,6 +17,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Schema } from "../lib/directus";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
 import { useUpdateChapter } from "../queries/chapter.queries";
@@ -170,10 +171,15 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     useFetchChaptersByProjectId(projectId);
   const { mutate: updateOrder } = useUpdateChapterOrder(projectId);
   const queryClient = useQueryClient();
+  const { mutate: updateOrder } = useUpdateChapterOrder(projectId);
+  const queryClient = useQueryClient();
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 },
+    }),
     useSensor(PointerSensor, {
       activationConstraint: { distance: 4 },
     }),
@@ -185,11 +191,13 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id);
     console.log("drag-start", event.active.id);
+    console.log("drag-start", event.active.id);
   };
 
   const handleDragEnd = (event: any) => {
     setActiveId(null);
     const { active, over } = event;
+    console.log("drag-end", { active: active?.id, over: over?.id });
     console.log("drag-end", { active: active?.id, over: over?.id });
 
     if (!over || active.id === over.id) return;
@@ -198,6 +206,13 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     const newIndex = chapters.findIndex((ch) => ch.id === over.id);
 
     const reordered = arrayMove(chapters, oldIndex, newIndex);
+    const reorderedWithSort = reordered.map((chapter, index) => ({
+      ...chapter,
+      sort: index + 1,
+    }));
+
+    // 先同步更新缓存，避免视觉回跳
+    queryClient.setQueryData(["chapters", projectId], reorderedWithSort);
     const reorderedWithSort = reordered.map((chapter, index) => ({
       ...chapter,
       sort: index + 1,
@@ -225,6 +240,10 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      <SortableContext
+        items={chapters.map((ch) => ch.id)}
+        strategy={verticalListSortingStrategy}
+      >
       <SortableContext
         items={chapters.map((ch) => ch.id)}
         strategy={verticalListSortingStrategy}

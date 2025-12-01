@@ -7,6 +7,13 @@ import {
   updateItems,
   updateItem,
 } from "@directus/sdk";
+import {
+  createItem,
+  readItems,
+  deleteItem,
+  updateItems,
+  updateItem,
+} from "@directus/sdk";
 import type { Schema } from "../lib/directus";
 export const useCreateChapter = () => {
   const queryClient = useQueryClient();
@@ -61,9 +68,15 @@ const updateChaptersOrder = async (updates: { id: string; sort: number }[]) => {
       directus.request(updateItem("chapters", u.id, { sort: u.sort }))
     )
   );
+  const result = await Promise.all(
+    updates.map((u) =>
+      directus.request(updateItem("chapters", u.id, { sort: u.sort }))
+    )
+  );
   return result;
 };
 
+export const useUpdateChapterOrder = (projectId: string) => {
 export const useUpdateChapterOrder = (projectId: string) => {
   const queryClient = useQueryClient();
 
@@ -71,8 +84,10 @@ export const useUpdateChapterOrder = (projectId: string) => {
     mutationFn: updateChaptersOrder,
     onMutate: async (newOrders) => {
       await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
+      await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
       const previous = queryClient.getQueryData<Schema["chapters"][]>([
         "chapters",
+        projectId,
         projectId,
       ]);
 
@@ -83,6 +98,7 @@ export const useUpdateChapterOrder = (projectId: string) => {
       });
       updated.sort((a, b) => a.sort - b.sort);
 
+      queryClient.setQueryData(["chapters", projectId], updated);
       queryClient.setQueryData(["chapters", projectId], updated);
       return { previous };
     },
@@ -137,6 +153,7 @@ export const useDeleteChapterInProject = (projectId: string) => {
       }
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
       queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
     },
   });
