@@ -1,12 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
-import {
-  createItem,
-  readItems,
-  deleteItem,
-  updateItems,
-  updateItem,
-} from "@directus/sdk";
+
 import {
   createItem,
   readItems,
@@ -68,15 +62,9 @@ const updateChaptersOrder = async (updates: { id: string; sort: number }[]) => {
       directus.request(updateItem("chapters", u.id, { sort: u.sort }))
     )
   );
-  const result = await Promise.all(
-    updates.map((u) =>
-      directus.request(updateItem("chapters", u.id, { sort: u.sort }))
-    )
-  );
   return result;
 };
 
-export const useUpdateChapterOrder = (projectId: string) => {
 export const useUpdateChapterOrder = (projectId: string) => {
   const queryClient = useQueryClient();
 
@@ -117,7 +105,11 @@ export const useUpdateChapterOrder = (projectId: string) => {
 export const useUpdateChapter = (projectId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { id: string; title: string; content: string }) => {
+    mutationFn: async (data: {
+      id: string;
+      title: string;
+      content: string;
+    }) => {
       return directus.request(
         updateItem("chapters", data.id, {
           title: data.title,

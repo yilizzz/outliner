@@ -17,7 +17,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Schema } from "../lib/directus";
 import { useQueryClient } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
 import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
 import { useUpdateChapter } from "../queries/chapter.queries";
@@ -64,7 +63,10 @@ const SortableChapterItem = ({
       {...attributes}
       {...(isEditing ? {} : listeners)}
     >
-      <button className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600" aria-label="拖拽排序">
+      <button
+        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+        aria-label="拖拽排序"
+      >
         ☰
       </button>
       <div className="flex-1">
@@ -169,8 +171,7 @@ const DragOverlayItem = ({
 export const ChapterList = ({ projectId }: { projectId: string }) => {
   const { data: chapters = [], isLoading } =
     useFetchChaptersByProjectId(projectId);
-  const { mutate: updateOrder } = useUpdateChapterOrder(projectId);
-  const queryClient = useQueryClient();
+
   const { mutate: updateOrder } = useUpdateChapterOrder(projectId);
   const queryClient = useQueryClient();
 
@@ -213,13 +214,6 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
 
     // 先同步更新缓存，避免视觉回跳
     queryClient.setQueryData(["chapters", projectId], reorderedWithSort);
-    const reorderedWithSort = reordered.map((chapter, index) => ({
-      ...chapter,
-      sort: index + 1,
-    }));
-
-    // 先同步更新缓存，避免视觉回跳
-    queryClient.setQueryData(["chapters", projectId], reorderedWithSort);
 
     const updates: { id: string; sort: number }[] = reordered.map(
       (chapter, index) => ({
@@ -244,13 +238,13 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
         items={chapters.map((ch) => ch.id)}
         strategy={verticalListSortingStrategy}
       >
-      <SortableContext
-        items={chapters.map((ch) => ch.id)}
-        strategy={verticalListSortingStrategy}
-      >
         <div className="space-y-2">
           {chapters.map((chapter) => (
-            <SortableChapterItem key={chapter.id} chapter={chapter} projectId={projectId} />
+            <SortableChapterItem
+              key={chapter.id}
+              chapter={chapter}
+              projectId={projectId}
+            />
           ))}
         </div>
       </SortableContext>
