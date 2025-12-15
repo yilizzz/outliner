@@ -14,8 +14,10 @@ import { directus } from "../lib/directus";
 import { useSecureData } from "../stores/secure_data_store";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
+import { useLanguage } from "../contexts/language_context";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
+  const { t } = useLanguage();
   interface Values {
     pin: string;
     confirmPin: string;
@@ -25,20 +27,23 @@ const PinSetupScreen: React.FC = () => {
   const { saveUserIdToStorage, loginWithAuth } = useAuthStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const PinSetSchema = Yup.object().shape({
-    pin: Yup.string()
-      .required("Required")
-      .matches(/^\d{4}$/, "PIN must be exactly 4 digits"),
-    confirmPin: Yup.string()
-      .required("Required")
-      .oneOf([Yup.ref("pin")], "The two PINs must be the same.")
-      .matches(/^\d{4}$/, "PIN must be exactly 4 digits"),
-  });
 
-  const mockDirectusAPI = {
+  // 动态创建 validation schema，每次语言改变时重新生成
+  const getPinSetSchema = () =>
+    Yup.object().shape({
+      pin: Yup.string()
+        .required(t("yup_required"))
+        .matches(/^\d{4}$/, t("yup_pin_format")),
+      confirmPin: Yup.string()
+        .required(t("yup_required"))
+        .oneOf([Yup.ref("pin")], t("yup_pin_mismatch"))
+        .matches(/^\d{4}$/, t("yup_pin_format")),
+    });
+
+  const credentials = {
     generateCredentials: async () => ({
       username: `user_${crypto.randomUUID()}`,
-      password: "veryLongRandomPassword123!",
+      password: `${crypto.randomUUID()}`,
     }),
     encryptData: encryptData,
     decryptData: decryptData,
@@ -53,8 +58,7 @@ const PinSetupScreen: React.FC = () => {
         const derivedKey = await deriveKey(finalPin, saltBuffer, ITERATIONS);
 
         // --- 步骤 3: 生成 Directus 凭证 ---
-        const { username, password } =
-          await mockDirectusAPI.generateCredentials();
+        const { username, password } = await credentials.generateCredentials();
 
         // --- 步骤 4: (新增/修正) 在 Directus 后台创建用户 ---
         const newUser = await directus.request(
@@ -104,7 +108,7 @@ const PinSetupScreen: React.FC = () => {
         // await checkAndRefreshToken();
 
         // --- 步骤 4: 加密 Directus 凭证 ---
-        const encryptedCredentials = await mockDirectusAPI.encryptData(
+        const encryptedCredentials = await credentials.encryptData(
           { username, password },
           derivedKey
         );
@@ -128,7 +132,7 @@ const PinSetupScreen: React.FC = () => {
         navigate("/dashboard");
       } catch (e) {
         console.error("初始化失败：", e);
-        setError("安全初始化过程中出现错误，请重试。");
+        setError(`${t("setup_error")}`);
       } finally {
         setIsProcessing(false);
       }
@@ -138,8 +142,7 @@ const PinSetupScreen: React.FC = () => {
   return (
     <div className="w-full flex flex-col justify-start items-center min-h-screen bg-gray-50 p-4">
       <div className="w-full max-w-md mt-12 bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">👋 欢迎使用</h1>
-        <p className="text-gray-500 mb-6">请为您的本地安全库设置 PIN 码。</p>
+        <p className="text-gray-500 mb-6">{t("set_pin")}</p>
         {error && (
           <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             ⚠️ {error}
@@ -150,7 +153,7 @@ const PinSetupScreen: React.FC = () => {
             pin: "",
             confirmPin: "",
           }}
-          validationSchema={PinSetSchema}
+          validationSchema={getPinSetSchema()}
           onSubmit={(values: Values) => {
             handleSetupComplete(values.pin);
           }}
@@ -159,21 +162,21 @@ const PinSetupScreen: React.FC = () => {
             <Form>
               <div className="w-full flex flex-col justify-start items-start gap-4">
                 <label htmlFor="pin">PIN</label>
-                <Field id="pin" name="pin" placeholder="4 digit PIN code" />
+                <Field id="pin" name="pin" placeholder={t("placeholder_pin")} />
                 {errors.pin && touched.pin ? (
                   <div className="text-amber-800">{errors.pin}</div>
                 ) : null}
-                <label htmlFor="confirmPin">Confirm your PIN</label>
+                <label htmlFor="confirmPin">{t("confirm_pin")}</label>
                 <Field
                   id="confirmPin"
                   name="confirmPin"
-                  placeholder="Repeat your PIN code"
+                  placeholder={t("placeholder_confirm_pin")}
                 />
                 {errors.confirmPin && touched.confirmPin ? (
                   <div className="text-amber-800">{errors.confirmPin}</div>
                 ) : null}
                 <div className="w-full text-center">
-                  <button type="submit">Submit</button>
+                  <button type="submit">{t("submit")}</button>
                 </div>
               </div>
             </Form>
@@ -201,7 +204,7 @@ const PinSetupScreen: React.FC = () => {
                 d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 16a8 8 0 100-16 8 8 0 000 16z"
               ></path>
             </svg>
-            处理中...
+            ...
           </div>
         ) : (
           <></>

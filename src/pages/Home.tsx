@@ -11,12 +11,12 @@ const Home: React.FC = () => {
   if (isSecureLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
-        <p className="text-xl">正在加载...</p>
+        <p className="text-xl">Loading...</p>
       </div>
     );
   }
 
-  // 如果已登录，重定向到 dashboard
+  //如果已登录，重定向到 dashboard
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }

@@ -4,15 +4,14 @@ import { useSecureData } from "../stores/secure_data_store";
 import { deriveKey, decryptData, CryptoHelpers } from "../utils/crypto_utils";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
-import { useTokenRefresh } from "../hooks/use_token_refresh";
-import { directus } from "../lib/directus";
+import { useLanguage } from "../contexts/language_context";
 const MAX_PIN_LENGTH = 4;
 
 const PinUnlockScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { loadInitialData } = useSecureData();
   const loginWithAuth = useAuthStore.getState().loginWithAuth;
-  const { checkAndRefreshToken } = useTokenRefresh();
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -60,7 +59,6 @@ const PinUnlockScreen: React.FC = () => {
         );
 
         // 登录 Directus 获取 Token
-
         console.log("尝试使用解密凭证登录 Directus...");
         const { username, password } = decryptedCredentials;
         const email = username + "@example.com";
@@ -93,7 +91,7 @@ const PinUnlockScreen: React.FC = () => {
       } catch (e) {
         console.error("解锁或登录失败:", e);
         // 失败：可能是 PIN 错误、密钥派生失败、解密失败或网络/Directus 登录失败
-        setError("PIN 码错误或身份验证失败，请重试。");
+        setError(`${t("pin_incorrect")}`);
         setPin(""); // 清空 PIN 码
       } finally {
         setIsProcessing(false);
@@ -105,8 +103,8 @@ const PinUnlockScreen: React.FC = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
       <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">🔒 应用解锁</h1>
-        <p className="text-gray-500 mb-6">请输入您的本地安全 PIN 码</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">🔒</h1>
+        <p className="text-gray-500 mb-6">{t("unlock")}</p>
 
         {error && (
           <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
@@ -127,9 +125,7 @@ const PinUnlockScreen: React.FC = () => {
         />
 
         <p className="text-center text-sm text-gray-400 mt-6">
-          {isProcessing
-            ? "正在验证并获取 Token..."
-            : "输入 PIN 码后将自动验证。"}
+          {isProcessing ? `${t("processing")}` : ""}
         </p>
       </div>
     </div>

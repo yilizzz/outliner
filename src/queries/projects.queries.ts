@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
-import { createItem, readItems } from "@directus/sdk";
+import { createItem, readItems, deleteItem } from "@directus/sdk";
 
 export const useFetchUserProjects = (userId: string | null) => {
   return useQuery({
@@ -20,6 +20,7 @@ export const useFetchUserProjects = (userId: string | null) => {
 };
 
 export const useCreateProject = (userId: string | null) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: { title: string }) => {
       if (!userId) {
@@ -30,6 +31,21 @@ export const useCreateProject = (userId: string | null) => {
           title: data.title,
         })
       );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", userId] });
+    },
+  });
+};
+
+export const useDeleteProject = (userId: string | null) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (projectId: string) => {
+      return directus.request(deleteItem("projects", projectId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", userId] });
     },
   });
 };

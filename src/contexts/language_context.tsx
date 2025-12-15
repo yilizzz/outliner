@@ -1,0 +1,100 @@
+import React, {
+  createContext,
+  useState,
+  useContext,
+  type ReactNode,
+} from "react";
+type Language = "en" | "zh";
+
+interface Translations {
+  [key: string]: {
+    [translationKey: string]: string;
+  };
+}
+
+interface LanguageContextType {
+  currentLang: Language;
+  t: (key: string) => string;
+  toggleLanguage: () => void;
+}
+
+const translations: Translations = {
+  en: {
+    set_pin: "For first-time use, please set a PIN for login",
+    confirm_pin: "Confirm PIN",
+    button: "Switch to Chinese",
+    setup_error: "Error during setup. Please try again.",
+    submit: "Submit",
+    home: "Home",
+    placeholder_pin: "4 digit PIN code",
+    placeholder_confirm_pin: "Repeat your PIN code",
+    yup_required: "This field is required.",
+    yup_pin_format: "PIN must be exactly 4 digits.",
+    yup_pin_mismatch: "The two PINs must be the same.",
+    unlock: "Please enter your local secure PIN code.",
+    processing: "Verifying and fetching Token...",
+    pin_incorrect: "Incorrect PIN. Please try again.",
+  },
+  zh: {
+    set_pin: "首次使用，请设置 PIN 码用于登录",
+    confirm_pin: "确认 PIN",
+    button: "切换到英文",
+    setup_error: "初始化过程中出现错误，请重试。",
+    submit: "提交",
+    home: "首页",
+    placeholder_pin: "4 位数字 PIN 码",
+    placeholder_confirm_pin: "重复输入您的 PIN 码",
+    yup_required: "此项为必填项。",
+    yup_pin_format: "PIN 必须是严格的 4 位数字。",
+    yup_pin_mismatch: "两次输入的 PIN 必须保持一致。",
+    unlock: "请输入您的本地安全 PIN 码。",
+    processing: "正在验证并获取 Token...",
+    pin_incorrect: "PIN 码错误，请重试。",
+  },
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined
+);
+
+interface LanguageProviderProps {
+  children: ReactNode;
+}
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({
+  children,
+}) => {
+  const [currentLang, setCurrentLang] = useState<Language>("en");
+
+  const t = (key: string): string => {
+    return translations[currentLang]?.[key] || key;
+  };
+
+  const toggleLanguage = (): void => {
+    setCurrentLang((prevLang) => (prevLang === "en" ? "zh" : "en"));
+  };
+
+  const value: LanguageContextType = {
+    currentLang,
+    t,
+    toggleLanguage,
+  };
+
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLanguage = (): LanguageContextType => {
+  const context = useContext(LanguageContext);
+
+  if (context === undefined) {
+    throw new Error(
+      "useLanguage must be used within a LanguageProvider component"
+    );
+  }
+
+  return context;
+};
