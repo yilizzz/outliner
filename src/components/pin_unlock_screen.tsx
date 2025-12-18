@@ -114,7 +114,6 @@ const PinUnlockScreen: React.FC = () => {
 
         <input
           type="number"
-          inputMode="numeric"
           value={pin}
           onChange={handlePinChange}
           placeholder={"••••"}

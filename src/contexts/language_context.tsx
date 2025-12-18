@@ -34,6 +34,12 @@ const translations: Translations = {
     unlock: "Please enter your local secure PIN code.",
     processing: "Verifying and fetching Token...",
     pin_incorrect: "Incorrect PIN. Please try again.",
+    work_management: "Work Management",
+    work_title: "Work Title",
+    placeholder_work_title: "Enter the title of your work",
+    create_work: "Create Work",
+    my_works: "My Works",
+    work_empty: "No works found. Create your first work!",
   },
   zh: {
     set_pin: "首次使用，请设置 PIN 码用于登录",
@@ -50,6 +56,12 @@ const translations: Translations = {
     unlock: "请输入您的本地安全 PIN 码。",
     processing: "正在验证并获取 Token...",
     pin_incorrect: "PIN 码错误，请重试。",
+    work_management: "作品管理",
+    work_title: "作品标题",
+    placeholder_work_title: "输入您的作品标题",
+    create_work: "创建作品",
+    my_works: "我的作品",
+    work_empty: "未找到作品，创建您的第一个作品！",
   },
 };
 

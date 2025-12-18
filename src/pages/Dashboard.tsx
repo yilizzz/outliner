@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { useAuthStore } from "../stores/auth_store";
-import { useFetchUserProjects } from "../queries/projects.queries";
 import ProjectsModal from "../components/projects_modal";
 import News from "./News";
-
 const Dashboard: React.FC = () => {
   const userId = useAuthStore((state) => state.userId);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 顶部控制栏 */}
@@ -17,7 +14,6 @@ const Dashboard: React.FC = () => {
             userId={userId}
             isOpen={isModalOpen}
             onOpenChange={setIsModalOpen}
-            triggerButtonLabel="管理项目"
           />
         </div>
       </div>

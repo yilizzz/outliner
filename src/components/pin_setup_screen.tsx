@@ -140,9 +140,9 @@ const PinSetupScreen: React.FC = () => {
     [navigate]
   );
   return (
-    <div className="w-full flex flex-col justify-start items-center min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-md mt-12 bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
-        <p className="text-gray-500 mb-6">{t("set_pin")}</p>
+    <div className="w-full min-h-screen bg-gray-50 p-4">
+      <div className="w-full flex flex-col justify-start items-center max-w-md mt-12 bg-white p-8 rounded-xl shadow-2xl border border-gray-100 text-center">
+        <p className=" text-gray-500 mb-6">{t("set_pin")}</p>
         {error && (
           <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             ⚠️ {error}
@@ -159,10 +159,15 @@ const PinSetupScreen: React.FC = () => {
           }}
         >
           {({ errors, touched }) => (
-            <Form>
+            <Form className="w-full">
               <div className="w-full flex flex-col justify-start items-start gap-4">
-                <label htmlFor="pin">PIN</label>
-                <Field id="pin" name="pin" placeholder={t("placeholder_pin")} />
+                <label htmlFor="pin">Pin</label>
+                <Field
+                  id="pin"
+                  name="pin"
+                  placeholder={t("placeholder_pin")}
+                  className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-shadow-blue-600"
+                />
                 {errors.pin && touched.pin ? (
                   <div className="text-amber-800">{errors.pin}</div>
                 ) : null}
@@ -171,6 +176,7 @@ const PinSetupScreen: React.FC = () => {
                   id="confirmPin"
                   name="confirmPin"
                   placeholder={t("placeholder_confirm_pin")}
+                  className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.confirmPin && touched.confirmPin ? (
                   <div className="text-amber-800">{errors.confirmPin}</div>

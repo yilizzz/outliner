@@ -17,12 +17,38 @@ function bufferToBase64Url(buffer: ArrayBuffer): string {
  * @param base64Url - Base64 URL Safe 字符串
  * @returns ArrayBuffer
  */
+// function base64UrlToBuffer(base64Url: string): ArrayBuffer {
+//   const padded = (base64Url + "==").slice(
+//     0,
+//     base64Url.length + (base64Url.length % 4)
+//   );
+//   const binaryString = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+//   const bytes = new Uint8Array(binaryString.length);
+//   for (let i = 0; i < binaryString.length; i++) {
+//     bytes[i] = binaryString.charCodeAt(i);
+//   }
+//   return bytes.buffer;
+// }
 function base64UrlToBuffer(base64Url: string): ArrayBuffer {
-  const padded = (base64Url + "==").slice(
-    0,
-    base64Url.length + (base64Url.length % 4)
-  );
-  const binaryString = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+  // 移除可能存在的空白（防御性）
+  let str = base64Url.trim();
+
+  // 补全 padding
+  const remainder = str.length % 4;
+  if (remainder === 2) {
+    str += "==";
+  } else if (remainder === 3) {
+    str += "=";
+  }
+  // 如果 remainder === 0，不加
+
+  // 替换 Base64URL 字符为标准 Base64
+  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+
+  // 解码
+  const binaryString = atob(base64);
+
+  // 转为 ArrayBuffer
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);

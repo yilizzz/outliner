@@ -36,7 +36,6 @@ const Project: React.FC = () => {
         userId={userId}
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
-        triggerButtonLabel="管理项目"
       />
       <button onClick={() => navigate("/dashboard")}>Dashboard</button>
       <h1>{project?.title}</h1>

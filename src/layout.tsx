@@ -7,7 +7,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { t } = useLanguage();
   return (
-    <div>
+    <div className="w-full">
       <header className="flex justify-end items-center">
         <nav>
           <a href="/dashboard">{t("home")}</a>
@@ -15,7 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <LanguageToggle />
       </header>
 
-      <main>{children}</main>
+      <main className="w-full">{children}</main>
 
       {/* <footer className="footer">
         <p>© 2024 我的应用</p>

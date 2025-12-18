@@ -1,9 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useFetchNews } from "../queries/news.queries";
-
+import { useLanguage } from "../contexts/language_context";
 const News = () => {
+  const { t, currentLang } = useLanguage();
   const [page, setPage] = useState(1);
-  const { data: newsItems = [], isLoading, refetch } = useFetchNews(page);
+  const {
+    data: newsItems = [],
+    isLoading,
+    refetch,
+  } = useFetchNews(page, 6, currentLang);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
