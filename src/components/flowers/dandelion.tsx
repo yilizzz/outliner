@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { makeRotatable } from "../../utils/make_rotatable";
 import {
   getRandomColors,
   darkColors,
@@ -7,47 +8,45 @@ import {
 } from "../../utils/color_utils";
 export const Dandelion = ({
   count,
-
   baseSize,
 }: {
   count: number;
-
   baseSize: number;
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-
+  const rotationRef = useRef<any>(null);
   const radius = baseSize / 2;
   useEffect(() => {
-    const svg = d3.select(svgRef.current);
     if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
 
     svg.selectAll("*").remove();
-
-    svg
-      .attr("width", baseSize)
-      .attr("height", baseSize)
-      .attr("viewBox", `0 0 ${baseSize} ${baseSize}`);
-
-    // center group
-    const g = svg
-      .append("g")
-      .attr("transform", `translate(${baseSize / 2},${baseSize / 2})`);
-
+    const g = svg.append("g");
     // generate nodes using phyllotaxis for even distribution
-    const nodes = d3.range(count).map((i) => {
-      const angle = i * 137.508; // golden angle
+    const puffNodes = d3.range(count).map((i) => {
+      const index = i + 1; // 跳过 i=0，让第一个点就有半径
+      const angle = index * 137.508; // golden angle
       const r =
-        Math.sqrt(i / Math.max(1, count)) *
+        Math.sqrt(index / (count + 1)) * // 分母略大于 count，防止最外层超限
         radius *
         (0.6 + Math.random() * 0.4);
       const x = r * Math.cos((angle * Math.PI) / 180);
       const y = r * Math.sin((angle * Math.PI) / 180);
-      return { x, y, i };
+      const color = getRandomColors(darkColors, 1)[0];
+      return { x, y, i, color };
     });
+    // center dot
+    g.append("circle")
+      .attr("class", "dandelion-center")
+      .attr("cx", 0)
+      .attr("cy", 0)
+      .attr("r", 3)
+      .attr("fill", darkColors[0])
+      .attr("opacity", 0.9);
 
     // lines
     g.selectAll(".puff-line")
-      .data(nodes)
+      .data(puffNodes)
       .enter()
       .append("line")
       .attr("class", "puff-line")
@@ -55,18 +54,18 @@ export const Dandelion = ({
       .attr("y1", 0)
       .attr("x2", 0)
       .attr("y2", 0)
-      .attr("stroke", getRandomColors(darkColors, 1)[0])
+      .attr("stroke", (d: any) => d.color)
       .attr("stroke-width", 0.7)
       .attr("stroke-opacity", 0.28)
       .transition()
       .delay((d: any, i: number) => i * 8)
-      .duration(600)
+      .duration(1000)
       .attr("x2", (d: any) => d.x)
       .attr("y2", (d: any) => d.y);
 
     // end dots
     g.selectAll(".puff-dot")
-      .data(nodes)
+      .data(puffNodes)
       .enter()
       .append("circle")
       .attr("class", "puff-dot")
@@ -82,64 +81,22 @@ export const Dandelion = ({
       .attr("stroke-width", 1)
       .transition()
       .delay((d: any, i: number) => 300 + i * 6)
-      .duration(400)
+      .duration(1000)
       .attr("cx", (d: any) => d.x)
       .attr("cy", (d: any) => d.y)
       .attr("r", 1.9);
 
-    // rotation via d3.timer to ensure rotation happens around group's center
-    let rotating = true;
-    let angle = 0;
-    let timer: d3.Timer | null = null;
-    const center = baseSize / 2;
-
-    const startRotation = () => {
-      if (timer) timer.stop();
-      let last = Date.now();
-      timer = d3.timer(() => {
-        const now = Date.now();
-        const dt = (now - last) / 1000; // seconds
-        last = now;
-        // 360 degrees per 6s => 60 deg/s
-        angle = (angle + dt * 60) % 360;
-        g.attr("transform", `translate(${center},${center}) rotate(${angle})`);
-      });
-    };
-
-    const stopRotation = () => {
-      if (timer) {
-        timer.stop();
-        timer = null;
-      }
-    };
-
-    const toggleRotation = () => {
-      rotating = !rotating;
-      if (rotating) startRotation();
-      else stopRotation();
-    };
-
-    // start rotating immediately after render
-    if (rotating) startRotation();
-
-    const pointerHandler = (event: any) => {
-      // on touch devices, prevent default scrolling gesture when tapping the svg
-      try {
-        event.preventDefault();
-      } catch (e) {
-        /* ignore */
-      }
-      toggleRotation();
-    };
-
-    svg.on("pointerdown", pointerHandler);
-
-    return () => {
-      svg.on("pointerdown", null);
-      stopRotation();
-      svg.selectAll("*").remove();
-    };
+    rotationRef.current = makeRotatable({ svg, g, center: baseSize / 2 });
+    return () => rotationRef.current?.cleanup();
   }, [count, baseSize]);
 
-  return <svg ref={svgRef} className="mx-auto" />;
+  return (
+    <svg
+      ref={svgRef}
+      width={baseSize}
+      height={baseSize}
+      viewBox={`${-baseSize / 2} ${-baseSize / 2} ${baseSize} ${baseSize}`}
+      style={{ overflow: "visible" }}
+    />
+  );
 };

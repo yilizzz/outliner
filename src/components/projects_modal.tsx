@@ -87,7 +87,7 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 animate-in fade-in" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] w-[90vw] max-w-md max-h-[80vh] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 overflow-y-auto animate-in fade-in zoom-in">
+        <Dialog.Content className="fixed left-[50%] top-[50%] w-[90vw] max-w-md max-h-[50vh] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 overflow-y-auto animate-in fade-in zoom-in">
           <div className="flex items-center justify-between mb-6">
             <Dialog.Title className="text-xl font-bold text-gray-800">
               {t("work_management")}

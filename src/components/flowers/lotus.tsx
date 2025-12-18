@@ -5,16 +5,16 @@ import {
   darkColors,
   getRandomColors,
 } from "../../utils/color_utils";
+import { makeRotatable } from "../../utils/make_rotatable";
 export const Lotus = ({
   count,
-
   baseSize,
 }: {
   count: number;
-
   baseSize: number;
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const rotationRef = useRef<any>(null);
   const radius = 80;
   useEffect(() => {
     // 确保 ref 已经挂载
@@ -24,9 +24,7 @@ export const Lotus = ({
     svg.selectAll("*").remove();
 
     // 创建中心容器
-    const g = svg
-      .append("g")
-      .attr("transform", `translate(${baseSize / 2},${baseSize / 2})`);
+    const g = svg.append("g");
 
     // 1. 生成花瓣数据
     const petals = Array.from({ length: count }, (_, i) => ({
@@ -50,7 +48,7 @@ export const Lotus = ({
       .attr("fill", (d) => d.color)
       .attr("stroke", "darkergreen")
       .attr("stroke-width", 1)
-      .attr("opacity", 0) // 初始透明
+      .attr("opacity", 0)
       .style("mix-blend-mode", "multiply")
       .transition()
       .duration(1000)
@@ -63,15 +61,25 @@ export const Lotus = ({
       .attr("fill", getRandomColors(darkColors, 1)[0])
       .attr("opacity", 0.9)
       .style("filter", "drop-shadow(0 0 5px white)");
-  }, [count, radius, baseSize]); // 依赖项变化时重新绘制
+
+    rotationRef.current = makeRotatable({ svg, g, center: baseSize / 2 });
+    return () => rotationRef.current?.cleanup();
+  }, [count, radius, baseSize]);
 
   return (
+    // <svg
+    //   ref={svgRef}
+    //   width={baseSize}
+    //   height={baseSize}
+    //   viewBox={`0 0 ${baseSize} ${baseSize}`}
+    //   className="mx-auto"
+    //   style={{ overflow: "visible" }}
+    // />
     <svg
       ref={svgRef}
       width={baseSize}
       height={baseSize}
-      viewBox={`0 0 ${baseSize} ${baseSize}`}
-      className="mx-auto"
+      viewBox={`${-baseSize / 2} ${-baseSize / 2} ${baseSize} ${baseSize}`}
       style={{ overflow: "visible" }}
     />
   );
