@@ -104,9 +104,6 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
             onSubmit={handleCreateProject}
             className="mb-6 pb-6 border-b border-gray-200 flex justify-center items-center gap-2 flex-nowrap"
           >
-            {/* <label className=" text-sm font-medium text-gray-700 mb-2">
-              {t("work_title")}
-            </label> */}
             <input
               type="text"
               value={newProjectTitle}
@@ -152,7 +149,10 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
                       </p>
                     </div>
                     <div className="w-full">
-                      <Visualizing project_id={project.id} />
+                      <Visualizing
+                        project_id={project.id}
+                        forceRender={isOpen}
+                      />
                     </div>
                     <div className="flex items-center gap-2 ml-2">
                       <button

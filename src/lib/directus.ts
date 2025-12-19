@@ -8,7 +8,6 @@ export interface Schema {
     title: string;
   };
   chapters: {
-    id: string;
     project: string;
     title: string;
     content: string;

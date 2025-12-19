@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { createUser } from "@directus/sdk";
+import { createUser, createItem } from "@directus/sdk";
 import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
@@ -15,9 +15,11 @@ import { useSecureData } from "../stores/secure_data_store";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
+import { useCreateProject } from "../queries/projects.queries";
+import { useCreateChapter } from "../queries/chapter.queries";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, currentLang } = useLanguage();
   interface Values {
     pin: string;
     confirmPin: string;
@@ -27,7 +29,7 @@ const PinSetupScreen: React.FC = () => {
   const { saveUserIdToStorage, loginWithAuth } = useAuthStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const createChapterMutation = useCreateChapter();
   // 动态创建 validation schema，每次语言改变时重新生成
   const getPinSetSchema = () =>
     Yup.object().shape({
@@ -69,10 +71,9 @@ const PinSetupScreen: React.FC = () => {
             status: "active",
           })
         );
-        console.log(`Directus 用户 ${username} 创建成功。`);
+
         await saveUserIdToStorage(newUser.id);
         // --- 新增：用刚创建的凭证登录一次以获取 token（access + refresh） ---
-        console.log("使用新凭证登录以获取 access/refresh token ...");
         const email = username + "@example.com";
         //Directus SDK 不返回refresh token，需调用 REST API
         // const response = await directus.login({
@@ -93,10 +94,6 @@ const PinSetupScreen: React.FC = () => {
           }
         );
         const authResponse = await res.json();
-        console.log(
-          "绝对expire时间: ",
-          expiresAbsolute(authResponse.data.expires)
-        );
         const auth = {
           access_token: authResponse.data.access_token,
           refresh_token: authResponse.data.refresh_token,
@@ -106,6 +103,25 @@ const PinSetupScreen: React.FC = () => {
         // 2. 登录成功后，useTokenRefresh 会自动开始工作
         //    不需要手动调用 checkAndRefreshToken
         // await checkAndRefreshToken();
+
+        // 为不同语言用户生成示例作品（直接用 Directus API，避免在回调中调用 hook）
+        const projectTitle =
+          currentLang === "en" ? "My example work" : "示例作品";
+        const createdProject = await directus.request(
+          createItem("projects", {
+            title: projectTitle,
+            user_created: newUser.id,
+          })
+        );
+        const project = createdProject?.id || (createdProject as any);
+        for (let i = 0; i < 3; i++) {
+          await createChapterMutation.mutateAsync({
+            project,
+            title: `${i + 1}`,
+            content: "",
+            sort: i + 1,
+          });
+        }
 
         // --- 步骤 4: 加密 Directus 凭证 ---
         const encryptedCredentials = await credentials.encryptData(
@@ -140,7 +156,7 @@ const PinSetupScreen: React.FC = () => {
     [navigate]
   );
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-4">
+    <div className="w-full min-h-screen bg-gray-50 p-4 flex justify-center items-center">
       <div className="w-full flex flex-col justify-start items-center max-w-md mt-12 bg-white p-8 rounded-xl shadow-2xl border border-gray-100 text-center">
         <p className=" text-gray-500 mb-6">{t("set_pin")}</p>
         {error && (

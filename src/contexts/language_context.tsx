@@ -22,7 +22,7 @@ const translations: Translations = {
   en: {
     set_pin: "For first-time use, please set a PIN for login",
     confirm_pin: "Confirm PIN",
-    button: "Switch to Chinese",
+    button: "English",
     setup_error: "Error during setup. Please try again.",
     submit: "Submit",
     home: "Home",
@@ -44,7 +44,7 @@ const translations: Translations = {
   zh: {
     set_pin: "首次使用，请设置 PIN 码用于登录",
     confirm_pin: "确认 PIN",
-    button: "切换到英文",
+    button: "中文",
     setup_error: "初始化过程中出现错误，请重试。",
     submit: "提交",
     home: "首页",

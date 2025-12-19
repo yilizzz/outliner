@@ -13,7 +13,7 @@ interface SecureDataState {
   saveInitialData: (salt: string, encryptedCreds: string) => Promise<void>;
   loadInitialData: () => Promise<LoadedInitialData>;
   // (可选) 手动触发初始化检查
-  checkInitialization: () => Promise<void>;
+  //checkInitialization: () => Promise<void>;
 }
 
 export const useSecureData = create<SecureDataState>((set, get) => {
@@ -37,20 +37,20 @@ export const useSecureData = create<SecureDataState>((set, get) => {
     isInitialized: null,
     isLoading: true,
 
-    checkInitialization: async () => {
-      set({ isLoading: true });
-      try {
-        const initialized = await SecureStorage.getItem(
-          SECURE_KEYS.IS_INITIALIZED
-        );
-        set({
-          isInitialized: initialized === "true",
-          isLoading: false,
-        });
-      } catch (e) {
-        set({ isInitialized: false, isLoading: false });
-      }
-    },
+    // checkInitialization: async () => {
+    //   set({ isLoading: true });
+    //   try {
+    //     const initialized = await SecureStorage.getItem(
+    //       SECURE_KEYS.IS_INITIALIZED
+    //     );
+    //     set({
+    //       isInitialized: initialized === "true",
+    //       isLoading: false,
+    //     });
+    //   } catch (e) {
+    //     set({ isInitialized: false, isLoading: false });
+    //   }
+    // },
 
     saveInitialData: async (salt: string, encryptedCreds: string) => {
       // 存储 salt, enc_creds, initialized；并尝试从 encryptedCreds 中提取 iterations 写入 app_iterations（向后兼容）

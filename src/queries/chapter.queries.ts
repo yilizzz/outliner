@@ -1,13 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
 
-import {
-  createItem,
-  readItems,
-  deleteItem,
-  updateItems,
-  updateItem,
-} from "@directus/sdk";
+import { createItem, readItems, deleteItem, updateItem } from "@directus/sdk";
 import type { Schema } from "../lib/directus";
 export const useCreateChapter = () => {
   const queryClient = useQueryClient();
@@ -15,7 +9,7 @@ export const useCreateChapter = () => {
     mutationFn: async (data: Schema["chapters"]) => {
       return directus.request(
         createItem("chapters", {
-          project: data.projectId,
+          project: data.project,
           title: data.title,
           content: data.content,
           sort: data.sort,

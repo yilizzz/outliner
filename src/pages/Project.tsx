@@ -32,12 +32,12 @@ const Project: React.FC = () => {
 
   return (
     <div>
-      <ProjectsModal
+      {/* <ProjectsModal
         userId={userId}
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
       />
-      <button onClick={() => navigate("/dashboard")}>Dashboard</button>
+      <button onClick={() => navigate("/dashboard")}>Dashboard</button> */}
       <h1>{project?.title}</h1>
       <p>Last updated: {project?.date_updated}</p>
       <ChapterList projectId={slug} />

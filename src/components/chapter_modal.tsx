@@ -34,7 +34,7 @@ export function AddChapterModal({
     setLoading(true);
     try {
       const res = await mutateAsync({
-        projectId,
+        project: projectId,
         title: title.trim(),
         content: content.trim() || null,
         sort: getNextSortOrder(),

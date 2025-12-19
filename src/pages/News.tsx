@@ -1,23 +1,33 @@
 import { useState, useRef, useEffect } from "react";
-import { useFetchNews } from "../queries/news.queries";
+import { useInfiniteFetchNews } from "../queries/news.queries";
 import { useLanguage } from "../contexts/language_context";
+import { useDebounce } from "use-debounce";
+import { TextSearch } from "lucide-react";
 const News = () => {
   const { t, currentLang } = useLanguage();
-  const [page, setPage] = useState(1);
-  const {
-    data: newsItems = [],
-    isLoading,
-    refetch,
-  } = useFetchNews(page, 6, currentLang);
+  const limit = 6;
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [debouncedSearch] = useDebounce(searchKeyword, 1200);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteFetchNews(limit, currentLang, selectedCategory, debouncedSearch);
+
+  const newsItems = data?.pages?.flatMap((page: any) => page.data) || [];
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const touchStartY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const categories = ["biotech", "physics", "climate", "space", "computer"];
+
   const handleTouchStart = (e: React.TouchEvent) => {
     const scrollElement = scrollContainerRef.current;
-    if (scrollElement && scrollElement.scrollTop === 0) {
+    if (!scrollElement) return;
+    const atBottom =
+      scrollElement.scrollTop + scrollElement.clientHeight >=
+      scrollElement.scrollHeight - 2;
+    if (atBottom && hasNextPage) {
       touchStartY.current = e.touches[0].clientY;
       setIsPulling(true);
     }
@@ -27,28 +37,27 @@ const News = () => {
     if (!isPulling || refreshing) return;
 
     const scrollElement = scrollContainerRef.current;
-    if (scrollElement && scrollElement.scrollTop === 0) {
-      const touchCurrentY = e.touches[0].clientY;
-      const distance = Math.max(0, touchCurrentY - touchStartY.current);
+    if (!scrollElement) return;
+    const touchCurrentY = e.touches[0].clientY;
+    const distance = Math.max(0, touchStartY.current - touchCurrentY); // pull up
 
-      // 阻尼效果：距离越大，拉动感越强
-      const dampenedDistance = distance * 0.6;
-      setPullDistance(dampenedDistance);
+    // 阻尼效果：距离越大，拉动感越强
+    const dampenedDistance = distance * 0.6;
+    setPullDistance(dampenedDistance);
 
-      // 防止默认滚动
-      if (distance > 0) {
-        e.preventDefault();
-      }
+    // 防止默认滚动
+    if (distance > 0) {
+      e.preventDefault();
     }
   };
 
   const handleTouchEnd = async () => {
     setIsPulling(false);
 
-    // 如果拉动距离超过 60px，触发刷新
-    if (pullDistance > 60) {
+    // 如果上拉距离超过 60px，触发加载下一页
+    if (pullDistance > 60 && hasNextPage) {
       setRefreshing(true);
-      await refetch();
+      await fetchNextPage();
       setRefreshing(false);
     }
 
@@ -71,7 +80,7 @@ const News = () => {
       container.removeEventListener("touchmove", handleTouchMove as any);
       container.removeEventListener("touchend", handleTouchEnd as any);
     };
-  }, [isPulling, pullDistance, refreshing]);
+  }, [isPulling, pullDistance, refreshing, hasNextPage, fetchNextPage]);
 
   if (isLoading && newsItems.length === 0) {
     return (
@@ -86,37 +95,51 @@ const News = () => {
       ref={scrollContainerRef}
       className="relative min-h-screen bg-gray-50 overflow-y-auto"
       style={{ touchAction: "pan-y" }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* 下拉刷新头部 */}
-      <div
-        className="flex items-center justify-center overflow-hidden transition-all duration-300"
-        style={{
-          height: `${pullDistance}px`,
-          opacity: Math.min(1, pullDistance / 60),
-        }}
-      >
-        <div className="text-center">
-          {pullDistance < 60 ? (
-            <div>
-              <div className="text-gray-500 text-sm">
-                ↓ {pullDistance > 0 ? "下拉刷新" : ""}
-              </div>
-            </div>
-          ) : (
-            <div className="text-blue-500 text-sm font-semibold">松开刷新</div>
-          )}
-        </div>
-      </div>
-
-      {/* 刷新动画指示器 */}
-      {refreshing && (
-        <div className="sticky top-0 flex justify-center py-2 bg-white border-b border-gray-200 z-10">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-        </div>
-      )}
-
       {/* 内容区域 */}
       <div className="p-4">
+        {/* Filter按钮组 */}
+        <div className="mb-6 flex flex-wrap gap-2 max-w-6xl mx-auto">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => {
+                setSelectedCategory((prev) =>
+                  prev.includes(category)
+                    ? prev.filter((c) => c !== category)
+                    : [...prev, category]
+                );
+              }}
+              className={`px-4 h-8 rounded-lg font-medium transition-colors flex items-center justify-center ${
+                selectedCategory.includes(category)
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+          <div className="relative h-8">
+            <span className="absolute h-full left-5 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-amber-700 opacity-25">
+              {<TextSearch />}
+            </span>
+            <input
+              autoFocus
+              type="text"
+              placeholder=""
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              className="h-8 border-amber-800 border rounded-sm"
+            />
+            {searchKeyword && (
+              <button onClick={() => setSearchKeyword("")}>×</button>
+            )}
+          </div>
+        </div>
+
         {/* 两列卡片网格 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
           {newsItems.map((item: any, index: number) => (
@@ -178,24 +201,18 @@ const News = () => {
           ))}
         </div>
 
-        {/* 分页控制 */}
+        {/* 加载更多按钮 */}
         <div className="flex justify-center gap-4 mt-8 mb-8">
           <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            上一页
-          </button>
-          <span className="flex items-center px-4 text-gray-700 font-semibold">
-            第 {page} 页
-          </span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={newsItems.length < 6}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            下一页
+            {isFetchingNextPage
+              ? "加载中..."
+              : hasNextPage
+              ? "加载更多"
+              : "没有更多了"}
           </button>
         </div>
       </div>

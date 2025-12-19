@@ -15,11 +15,12 @@ export const useInView = (
 
   const memoizedOptions = useMemo(() => {
     return {
-      threshold: 0.5, // 默认值
-      //rootMargin: "5px", // 默认值
-      ...options, // 用户传入的覆盖默认
-    };
-  }, [options?.threshold, options?.rootMargin, options?.root]);
+      threshold: 0.5,
+      root: options?.root ?? null,
+      rootMargin: options?.rootMargin ?? "0px",
+      ...options,
+    } as IntersectionObserverInit;
+  }, [options]);
 
   useEffect(() => {
     const element = ref.current;
@@ -30,16 +31,25 @@ export const useInView = (
       setEntry(entry);
       if (entry.isIntersecting) {
         setIsInView(true);
-        observer.unobserve(element);
+        try {
+          observer.unobserve(element);
+        } catch (e) {
+          /* ignore */
+        }
       }
     }, memoizedOptions);
 
     observer.observe(element);
 
     return () => {
-      observer.disconnect();
+      try {
+        observer.disconnect();
+      } catch (e) {
+        /* ignore */
+      }
     };
-  }, [memoizedOptions]);
+    // include ref.current so effect re-runs when element is attached
+  }, [memoizedOptions, (ref as any).current]);
 
   return [ref, isInView, entry];
 };
