@@ -2,7 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import { useInfiniteFetchNews } from "../queries/news.queries";
 import { useLanguage } from "../contexts/language_context";
 import { useDebounce } from "use-debounce";
-import { TextSearch } from "lucide-react";
+import {
+  TextSearch,
+  Delete,
+  Bean,
+  Haze,
+  Sprout,
+  Squirrel,
+  Eye,
+} from "lucide-react";
+import { getRandomColors, lightColors } from "../utils/color_utils";
+import { generateTornEdge } from "../utils/torn_edge";
 const News = () => {
   const { t, currentLang } = useLanguage();
   const limit = 6;
@@ -20,7 +30,9 @@ const News = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const categories = ["biotech", "physics", "climate", "space", "computer"];
-
+  const bgColor = getRandomColors(lightColors, 1)[0];
+  const edgeClipPath = generateTornEdge();
+  const inspirationIcons = [<Bean />, <Haze />, <Squirrel />, <Sprout />];
   const handleTouchStart = (e: React.TouchEvent) => {
     const scrollElement = scrollContainerRef.current;
     if (!scrollElement) return;
@@ -93,7 +105,7 @@ const News = () => {
   return (
     <div
       ref={scrollContainerRef}
-      className="relative min-h-screen bg-gray-50 overflow-y-auto"
+      className="relative min-h-screen bg-gray-50 overflow-y-auto pt-8 pb-12"
       style={{ touchAction: "pan-y" }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -115,16 +127,16 @@ const News = () => {
               }}
               className={`px-4 h-8 rounded-lg font-medium transition-colors flex items-center justify-center ${
                 selectedCategory.includes(category)
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-dark-blue text-white"
+                  : "bg-gray-200 text-dark-blue"
               }`}
             >
               {category}
             </button>
           ))}
-          <div className="relative h-8">
-            <span className="absolute h-full left-5 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-amber-700 opacity-25">
-              {<TextSearch />}
+          <div className="relative h-8 flex items-center justify-center gap-2">
+            <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-amber-700 opacity-25">
+              {searchKeyword ? null : <TextSearch size={24} />}
             </span>
             <input
               autoFocus
@@ -132,10 +144,15 @@ const News = () => {
               placeholder=""
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              className="h-8 border-amber-800 border rounded-sm"
+              className="h-8 border-dark-red border rounded-sm px-2"
             />
             {searchKeyword && (
-              <button onClick={() => setSearchKeyword("")}>×</button>
+              <button
+                onClick={() => setSearchKeyword("")}
+                className="text-dark-red"
+              >
+                <Delete size={24} />
+              </button>
             )}
           </div>
         </div>
@@ -143,59 +160,81 @@ const News = () => {
         {/* 两列卡片网格 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
           {newsItems.map((item: any, index: number) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col"
-            >
-              {/* 卡片内容容器 */}
-              <div className="p-4 flex flex-col h-full">
-                {/* 标题 */}
-                <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
-                  {item.title}
-                </h3>
+            <div className="relative">
+              <div
+                className="absolute inset-0 bg-gray-300 opacity-40"
+                style={{
+                  clipPath: edgeClipPath,
+                  transform: "translateY(4px) rotate(2deg)",
+                  WebkitTransform: "translateY(4px) rotate(2deg)",
+                }}
+              />
+              <div
+                key={index}
+                className="rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col"
+                style={{
+                  backgroundColor: bgColor,
+                  backgroundImage: 'url("rice-paper-3.png")',
+                  clipPath: edgeClipPath,
+                }}
+              >
+                {/* 卡片内容容器 */}
+                <div className="p-4 flex flex-col h-full">
+                  {/* 标题 */}
+                  <h3 className="text-lg font-bold text-dark-blue mb-2">
+                    {item.title}
+                  </h3>
 
-                {/* 分类和发布时间 */}
-                <div className="flex items-center gap-3 mb-3 text-sm text-gray-500">
-                  {item.category && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                      {item.category}
-                    </span>
+                  {/* 分类和发布时间 */}
+                  <div className="flex items-center gap-3 mb-3 text-sm text-gray-500">
+                    {item.category && (
+                      <span className="px-2 py-1 bg-dark-blue text-white rounded-lg">
+                        {item.category}
+                      </span>
+                    )}
+                    {item.published_at && (
+                      <span>
+                        {new Date(item.published_at).toLocaleDateString(
+                          "zh-CN"
+                        )}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 摘要 */}
+                  <p className="text-gray-600 text-sm mb-3 flex-grow">
+                    {item.summary}
+                  </p>
+
+                  {/* 灵感/亮点 */}
+                  {item.inspiration && (
+                    <div className="mb-3 p-2 bg-light-gray border-l-4 border-dark-red">
+                      <p className="text-xs font-semibold text-amber-900 mb-1">
+                        {inspirationIcons[index % 4]}
+                      </p>
+                      <p className="text-sm text-dark-red">
+                        {item.inspiration}
+                      </p>
+                    </div>
                   )}
-                  {item.published_at && (
-                    <span>
-                      {new Date(item.published_at).toLocaleDateString("zh-CN")}
-                    </span>
+
+                  {/* URL 链接 */}
+                  {item.url && (
+                    <div className="flex justify-end">
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-dark-green  text-sm font-semibold mt-auto break-all"
+                      >
+                        <span className="flex">
+                          <Eye size={24} />
+                          <Eye size={24} />
+                        </span>
+                      </a>
+                    </div>
                   )}
                 </div>
-
-                {/* 摘要 */}
-                <p className="text-gray-600 text-sm mb-3 flex-grow line-clamp-4">
-                  {item.summary}
-                </p>
-
-                {/* 灵感/亮点 */}
-                {item.inspiration && (
-                  <div className="mb-3 p-2 bg-amber-50 border-l-4 border-amber-400">
-                    <p className="text-xs font-semibold text-amber-900 mb-1">
-                      💡 灵感
-                    </p>
-                    <p className="text-sm text-amber-800 line-clamp-2">
-                      {item.inspiration}
-                    </p>
-                  </div>
-                )}
-
-                {/* URL 链接 */}
-                {item.url && (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-auto break-all"
-                  >
-                    查看原文 →
-                  </a>
-                )}
               </div>
             </div>
           ))}
@@ -208,11 +247,7 @@ const News = () => {
             disabled={!hasNextPage || isFetchingNextPage}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isFetchingNextPage
-              ? "加载中..."
-              : hasNextPage
-              ? "加载更多"
-              : "没有更多了"}
+            {isFetchingNextPage ? "..." : hasNextPage ? "More" : "没有更多了"}
           </button>
         </div>
       </div>

@@ -12,23 +12,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { userId } = useAuthStore();
   return (
     <div className="w-full">
-      <header className="flex justify-end items-center">
-        <nav className="flex justify-end items-center">
-          <a href="/dashboard">{t("home")}</a>
-          <ProjectsModal
-            userId={userId}
-            isOpen={isModalOpen}
-            onOpenChange={setIsModalOpen}
-          />
-        </nav>
-        <LanguageToggle />
-      </header>
+      {/* <header></header> */}
 
       <main className="w-full">{children}</main>
 
       {/* <footer className="footer">
         <p>© 2024 我的应用</p>
       </footer> */}
+      <footer className="fixed bottom-0 bg-gray-50 w-full">
+        <nav className="flex justify-around items-center">
+          <LanguageToggle />
+          <a href="/dashboard" className="text-dark-blue">
+            {t("home")}
+          </a>
+          <ProjectsModal
+            userId={userId}
+            isOpen={isModalOpen}
+            onOpenChange={setIsModalOpen}
+          />
+        </nav>
+      </footer>
     </div>
   );
 };

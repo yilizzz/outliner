@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, Plus, Trash2, Loader, Pencil, DiamondPlus } from "lucide-react";
+import {
+  X,
+  Plus,
+  Trash2,
+  Loader,
+  Pencil,
+  DiamondPlus,
+  FolderKanban,
+} from "lucide-react";
 import {
   useFetchUserProjects,
   useCreateProject,
@@ -78,8 +86,8 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-          <Plus size={18} />
+        <button className="flex items-center gap-2 px-4 py-2  text-dark-blue rounded-lg">
+          <FolderKanban size={24} />
           {t("work_management")}
           {projects.length > 0 && ` (${projects.length})`}
         </button>
@@ -87,10 +95,10 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 animate-in fade-in" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] w-[90vw] max-w-md max-h-[50vh] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 overflow-y-auto animate-in fade-in zoom-in">
+        <Dialog.Content className="fixed left-[50%] top-[50%] w-screen max-w-md max-h-[70vh] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg shadow-lg p-6 overflow-y-auto animate-in fade-in zoom-in">
           <div className="flex items-center justify-between mb-6">
             <Dialog.Title className="text-xl font-bold text-gray-800">
-              {t("work_management")}
+              <FolderKanban size={24} />
             </Dialog.Title>
             <Dialog.Close asChild>
               <button className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -109,14 +117,14 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
               value={newProjectTitle}
               onChange={(e) => setNewProjectTitle(e.target.value)}
               placeholder={t("placeholder_work_title")}
-              className=" px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-blue"
               disabled={isSubmitting}
             />
 
             <button
               type="submit"
               disabled={isSubmitting || !newProjectTitle.trim()}
-              className=" px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-colors font-semibold"
+              className=" px-3 py-2 bg-dark-green text-white rounded-lg  disabled:bg-gray-400 transition-colors font-semibold"
             >
               {isSubmitting ? <Loader /> : <DiamondPlus />}
             </button>
@@ -124,9 +132,9 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
 
           {/* 项目列表 */}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-700 mb-4">
+            {/* <h3 className="font-semibold text-gray-700 mb-4">
               {t("my_works")}
-            </h3>
+            </h3> */}
             {projects.length === 0 ? (
               <p className="text-gray-500 text-center py-4">
                 {t("work_empty")}
@@ -138,35 +146,35 @@ const ProjectsModal: React.FC<ProjectsModalProps> = ({
                     key={project.id}
                     className="flex flex-col items-center justify-between p-3 rounded-lg bg-green-50 transition-colors"
                   >
-                    <div className="flex-1">
+                    <div className="w-full flex items-center justify-between flex-wrap">
                       <p className="font-medium text-gray-800 truncate">
                         {project.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {new Date(project.date_updated).toLocaleDateString(
+                        {new Date(project.date_created).toLocaleDateString(
                           "zh-CN"
                         )}
                       </p>
+                      <div className="flex items-center gap-2 ml-2">
+                        <button
+                          onClick={() => handleNavigateToProject(project.id)}
+                          className="px-3 py-1 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProject(project.id)}
+                          className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                     <div className="w-full">
                       <Visualizing
                         project_id={project.id}
                         forceRender={isOpen}
                       />
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
-                      <button
-                        onClick={() => handleNavigateToProject(project.id)}
-                        className="px-3 py-1 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   </div>
                 ))}

@@ -1,9 +1,17 @@
 @import "tailwindcss";
+@theme {
+  --color-dark-blue: #2e4e7e;
+  --color-dark-red: #760001;
+  --color-dark-green: #6e8b74;
+  --color-light-gray: #e9e7ef;
+  --color-light-red: #fee3d5;
+  --color-light-blue: #abc3f0;
+  --color-light-green: #e0eee8;
+}
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Noto Sans SC", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

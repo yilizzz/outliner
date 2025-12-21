@@ -41,7 +41,7 @@ export const Visualizing: React.FC<TreeProps> = ({
 
   // 随机选择一个组件
   const randomIndex = Math.floor(Math.random() * components.length);
-  //const randomIndex = 5;
+  //const randomIndex = 3;
   const selectedComponent = components[randomIndex];
   return (
     <div className="flex flex-col items-center justify-center">

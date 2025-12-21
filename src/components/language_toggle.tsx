@@ -4,7 +4,7 @@ const LanguageToggle = () => {
   const { t, toggleLanguage } = useLanguage();
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="text-dark-blue">
       <button onClick={toggleLanguage}>{t("button")}</button>
     </div>
   );
