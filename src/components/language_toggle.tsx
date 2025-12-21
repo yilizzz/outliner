@@ -5,7 +5,9 @@ const LanguageToggle = () => {
 
   return (
     <div className="text-dark-blue">
-      <button onClick={toggleLanguage}>{t("button")}</button>
+      <button onClick={toggleLanguage} className="text-2xl">
+        {t("button")}
+      </button>
     </div>
   );
 };

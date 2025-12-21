@@ -76,7 +76,7 @@ const SortableChapterItem = ({
             <span className="ml-2 text-sm text-gray-500">{preview}</span>
           </h3>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 h-[50vh]">
             <input
               type="text"
               value={title}
@@ -88,7 +88,7 @@ const SortableChapterItem = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={3}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 flex-1"
               placeholder="内容"
             />
           </div>

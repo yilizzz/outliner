@@ -61,7 +61,7 @@ export function AddChapterModal({
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl focus:outline-none">
+        <Dialog.Content className="fixed z-50 w-full h-[90vh] rounded-lg bg-white p-6 shadow-xl focus:outline-none">
           <Dialog.Title className="text-lg font-semibold text-gray-900">
             新增章节
           </Dialog.Title>
@@ -98,7 +98,7 @@ export function AddChapterModal({
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">
-              <Dialog.Close asChild>
+              {/* <Dialog.Close asChild>
                 <button
                   type="button"
                   className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -106,7 +106,7 @@ export function AddChapterModal({
                 >
                   取消
                 </button>
-              </Dialog.Close>
+              </Dialog.Close> */}
               <button
                 type="submit"
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"

@@ -22,7 +22,7 @@ const translations: Translations = {
   en: {
     set_pin: "For first-time use, please set a PIN for login",
     confirm_pin: "Confirm PIN",
-    button: "English",
+    button: "En",
     setup_error: "Error during setup. Please try again.",
     submit: "Submit",
     home: "Home",
@@ -40,11 +40,13 @@ const translations: Translations = {
     create_work: "Create Work",
     my_works: "My Works",
     work_empty: "No works found. Create your first work!",
+    create_failed: "Creation failed. Please try again.",
+    delete_failed: "Deletion failed. Please try again.",
   },
   zh: {
     set_pin: "首次使用，请设置 PIN 码用于登录",
     confirm_pin: "确认 PIN",
-    button: "中文",
+    button: "中",
     setup_error: "初始化过程中出现错误，请重试。",
     submit: "提交",
     home: "首页",
@@ -62,6 +64,8 @@ const translations: Translations = {
     create_work: "创建作品",
     my_works: "我的作品",
     work_empty: "未找到作品，创建您的第一个作品！",
+    create_failed: "创建失败，请重试。",
+    delete_failed: "删除失败，请重试。",
   },
 };
 

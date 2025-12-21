@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 // 预留一些时间用于网络延迟，避免在最后一刻过期
-const TOKEN_EXPIRY_THRESHOLD = 1 * 60 * 1000;
+const TOKEN_EXPIRY_THRESHOLD = 2 * 60 * 1000;
 
 export const useTokenRefresh = () => {
   const { auth, isAuthenticated, refreshToken, logout } = useAuthStore();
@@ -65,7 +65,7 @@ export const useTokenRefresh = () => {
 
       console.log("新 Auth Response:", newAuthResponse);
       refreshToken(newAuthResponse);
-      console.log("Token 刷新成功！");
+      console.log("Token 刷新成功！", Date());
 
       isRefreshingRef.current = false;
       return true;

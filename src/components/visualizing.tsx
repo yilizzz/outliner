@@ -46,7 +46,7 @@ export const Visualizing: React.FC<TreeProps> = ({
   return (
     <div className="flex flex-col items-center justify-center">
       {chapterCount === 0 ? (
-        <></>
+        <div className="h-6"></div>
       ) : (
         <div ref={containerRef} style={{ width: baseSize, height: baseSize }}>
           {forceRender || isInView ? (

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { directus } from "../lib/directus";
-import { createItem, readItems, deleteItem } from "@directus/sdk";
+import { createItem, readItems, deleteItem, updateItem } from "@directus/sdk";
 
 export const useFetchUserProjects = (userId: string | null) => {
   return useQuery({
@@ -11,7 +11,7 @@ export const useFetchUserProjects = (userId: string | null) => {
         readItems("projects", {
           filter: { user_created: { _eq: userId } },
           fields: ["id", "title", "date_created", "date_updated"],
-          sort: ["-date_updated"],
+          sort: ["-date_created"],
         })
       );
     },
@@ -38,6 +38,22 @@ export const useCreateProject = (userId: string | null) => {
   });
 };
 
+export const useUpdateProject = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { id: string; title: string }) => {
+      return directus.request(
+        updateItem("projects", data.id, {
+          title: data.title,
+        })
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
+    },
+  });
+};
+
 export const useDeleteProject = (userId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -49,7 +65,7 @@ export const useDeleteProject = (userId: string | null) => {
     },
   });
 };
-export const useFetchProjectById = (projectId: string | null) => {
+export const useFetchProjectById = (projectId: string) => {
   return useQuery({
     queryKey: ["project", projectId],
     queryFn: async () => {

@@ -5,17 +5,16 @@ import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { AddChapterModal } from "../components/chapter_modal";
 import type { Schema } from "../lib/directus";
 import { ChapterList } from "../components/chapter_list";
-import ProjectsModal from "../components/projects_modal";
-import { useAuthStore } from "../stores/auth_store";
-import { useNavigate } from "react-router-dom";
+import { useUpdateProject } from "../queries/projects.queries";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { data: project } = useFetchProjectById(slug || null);
-  const { data: chaptersData } = useFetchChaptersByProjectId(slug || null);
+  const { data: project } = useFetchProjectById(slug);
+  const { data: chaptersData } = useFetchChaptersByProjectId(slug);
   const [chapters, setChapters] = useState<Array<Schema["chapters"]>>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const userId = useAuthStore((state) => state.userId);
-  const navigate = useNavigate();
+  const [title, setTitle] = useState(project.title);
+  const [isEditing, setIsEditing] = useState(false);
+  const { mutateAsync: updateProject } = useUpdateProject(project.id);
+
   // 同步从 API 获取的 chapters 到本地状态
   useEffect(() => {
     if (chaptersData) {
@@ -29,17 +28,40 @@ const Project: React.FC = () => {
       [...prev, newChapter].sort((a, b) => a.sort - b.sort)
     );
   };
-
+  if (!slug || !project || !chapters) return;
   return (
-    <div>
-      {/* <ProjectsModal
-        userId={userId}
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-      />
-      <button onClick={() => navigate("/dashboard")}>Dashboard</button> */}
-      <h1>{project?.title}</h1>
-      <p>Last updated: {project?.date_updated}</p>
+    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto">
+      {isEditing ? (
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          style={{ padding: "4px", fontSize: "16px" }}
+        />
+      ) : (
+        <div style={{ fontSize: "18px", fontWeight: "bold" }}>{title}</div>
+      )}
+
+      {isEditing ? (
+        <button
+          onClick={async () => {
+            {
+              await updateProject({ id: project?.id, title: title });
+              setIsEditing(false);
+            }
+          }}
+        >
+          保存
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            setIsEditing(true);
+          }}
+        >
+          编辑
+        </button>
+      )}
       <ChapterList projectId={slug} />
       <AddChapterModal
         projectId={slug}
