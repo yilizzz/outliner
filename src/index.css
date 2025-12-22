@@ -26,15 +26,9 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-/* 防止拖拽时选中文本 */
-/* [draggable],
+[draggable],
 .touch-manipulation {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
-} */
+}

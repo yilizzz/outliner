@@ -3,16 +3,18 @@ import { useInfiniteFetchNews } from "../queries/news.queries";
 import { useLanguage } from "../contexts/language_context";
 import { useDebounce } from "use-debounce";
 import {
-  TextSearch,
+  Search,
   Delete,
   Bean,
   Haze,
   Sprout,
   Squirrel,
   Eye,
+  LoaderPinwheel,
 } from "lucide-react";
 import { getRandomColors, lightColors } from "../utils/color_utils";
 import { generateTornEdge } from "../utils/torn_edge";
+import CustomInput from "../components/ui/input";
 const Dashboard = () => {
   const { t, currentLang } = useLanguage();
   const limit = 6;
@@ -97,7 +99,7 @@ const Dashboard = () => {
   if (isLoading && newsItems.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-gray-600">加载新闻中...</p>
+        <LoaderPinwheel className="animate-spin text-dark-blue" size={48} />
       </div>
     );
   }
@@ -123,7 +125,7 @@ const Dashboard = () => {
                   : [...prev, category]
               );
             }}
-            className={`px-4 h-8 rounded-lg font-medium transition-colors flex items-center justify-center ${
+            className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center justify-center ${
               selectedCategory.includes(category)
                 ? "bg-dark-blue text-white"
                 : "bg-gray-200 text-dark-blue"
@@ -132,22 +134,22 @@ const Dashboard = () => {
             {category}
           </button>
         ))}
-        <div className="relative h-8 flex items-center justify-center gap-2">
-          <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-amber-700 opacity-25">
-            {searchKeyword ? null : <TextSearch size={24} />}
+        <div className="relative flex items-center justify-center gap-2">
+          <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-dark-green opacity-50">
+            {searchKeyword ? null : <Search size={24} />}
           </span>
-          <input
+          <CustomInput
+            name="search"
             autoFocus
             type="text"
             placeholder=""
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="h-8 border-dark-red border rounded-sm px-2"
           />
           {searchKeyword && (
             <button
               onClick={() => setSearchKeyword("")}
-              className="text-dark-red"
+              className="text-dark-blue"
             >
               <Delete size={24} />
             </button>
@@ -169,7 +171,7 @@ const Dashboard = () => {
             />
             <div
               key={index}
-              className="rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col"
+              className="rounded-lg shadow-md hover:shadow-lg overflow-hidden flex flex-col transition-all duration-1000 "
               style={{
                 backgroundColor: bgColor,
                 backgroundImage: 'url("rice-paper-3.png")',
@@ -239,9 +241,15 @@ const Dashboard = () => {
         <button
           onClick={() => fetchNextPage()}
           disabled={!hasNextPage || isFetchingNextPage}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 bg-dark-blue text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {isFetchingNextPage ? "..." : hasNextPage ? "More" : "没有更多了"}
+          {isFetchingNextPage ? (
+            <LoaderPinwheel />
+          ) : hasNextPage ? (
+            "More"
+          ) : (
+            t("no_more")
+          )}
         </button>
       </div>
     </div>

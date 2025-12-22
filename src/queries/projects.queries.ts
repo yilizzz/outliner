@@ -49,7 +49,10 @@ export const useUpdateProject = (projectId: string) => {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", projectId] });
+      // Invalidate project details
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+      // Invalidate projects list (we'd need userId here to be precise, but strict invalidation on "projects" works too if we want to be safe, though less efficient)
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 };

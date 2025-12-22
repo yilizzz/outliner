@@ -66,10 +66,8 @@ export const useUpdateChapterOrder = (projectId: string) => {
     mutationFn: updateChaptersOrder,
     onMutate: async (newOrders) => {
       await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
-      await queryClient.cancelQueries({ queryKey: ["chapters", projectId] });
       const previous = queryClient.getQueryData<Schema["chapters"][]>([
         "chapters",
-        projectId,
         projectId,
       ]);
 
@@ -80,7 +78,6 @@ export const useUpdateChapterOrder = (projectId: string) => {
       });
       updated.sort((a, b) => a.sort - b.sort);
 
-      queryClient.setQueryData(["chapters", projectId], updated);
       queryClient.setQueryData(["chapters", projectId], updated);
       return { previous };
     },
@@ -139,7 +136,6 @@ export const useDeleteChapterInProject = (projectId: string) => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
       queryClient.invalidateQueries({ queryKey: ["chapters", projectId] });
     },
   });

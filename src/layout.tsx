@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import LanguageToggle from "./components/language_toggle";
 import { Link } from "react-router-dom";
-import { Pencil, House } from "lucide-react";
+import { House, NotebookText } from "lucide-react";
 interface LayoutProps {
   children: ReactNode;
 }
@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <House size={24} />
           </Link>
           <Link to="/projects" className="text-dark-blue">
-            <Pencil size={24} />
+            <NotebookText size={24} />
           </Link>
         </nav>
       </footer>

@@ -12,143 +12,13 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import type { Schema } from "../lib/directus";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
-import { useUpdateChapter } from "../queries/chapter.queries";
-import { useDeleteChapterInProject } from "../queries/chapter.queries";
 import { useState } from "react";
-
-// 单个章节项（可排序）
-const SortableChapterItem = ({
-  chapter,
-  projectId,
-}: {
-  chapter: Schema["chapters"];
-  projectId: string;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: chapter.id });
-  const { mutateAsync: updateChapter } = useUpdateChapter(projectId);
-  const { mutateAsync: deleteChapter } = useDeleteChapterInProject(projectId);
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(chapter.title || "");
-  const [content, setContent] = useState(chapter.content || "");
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 100 : "auto",
-  };
-
-  const preview = (chapter.content || "").slice(0, 10);
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm mb-2 cursor-move hover:bg-gray-50"
-      {...attributes}
-      {...(isEditing ? {} : listeners)}
-    >
-      <button
-        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
-        aria-label="拖拽排序"
-      >
-        ☰
-      </button>
-      <div className="flex-1">
-        {!isEditing ? (
-          <h3 className="font-medium">
-            {chapter.title}
-            <span className="ml-2 text-sm text-gray-500">{preview}</span>
-          </h3>
-        ) : (
-          <div className="flex flex-col gap-2 h-[50vh]">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border rounded px-2 py-1"
-              placeholder="标题"
-            />
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={3}
-              className="border rounded px-2 py-1 flex-1"
-              placeholder="内容"
-            />
-          </div>
-        )}
-      </div>
-      {!isEditing ? (
-        <div className="flex gap-2">
-          <button
-            className="px-2 py-1 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={() => setIsEditing(true)}
-          >
-            编辑
-          </button>
-          <button
-            className="px-2 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={async () => {
-              if (isDeleting) return;
-              const ok = window.confirm("确认删除该章节？");
-              if (!ok) return;
-              try {
-                setIsDeleting(true);
-                await deleteChapter(chapter.id);
-              } finally {
-                setIsDeleting(false);
-              }
-            }}
-          >
-            {isDeleting ? "删除中..." : "删除"}
-          </button>
-        </div>
-      ) : (
-        <div className="flex gap-2">
-          <button
-            className="px-2 py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={async () => {
-              await updateChapter({ id: chapter.id, title, content });
-              setIsEditing(false);
-            }}
-          >
-            保存
-          </button>
-          <button
-            className="px-2 py-1 text-sm rounded-md border border-gray-300 hover:bg-gray-50"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={() => {
-              setTitle(chapter.title || "");
-              setContent(chapter.content || "");
-              setIsEditing(false);
-            }}
-          >
-            取消
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
+import { SortableChapterItem } from "./sortable_chapter_item";
 
 // 拖拽中的占位预览（可选）
 const DragOverlayItem = ({
@@ -192,13 +62,11 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id);
     console.log("drag-start", event.active.id);
-    console.log("drag-start", event.active.id);
   };
 
   const handleDragEnd = (event: any) => {
     setActiveId(null);
     const { active, over } = event;
-    console.log("drag-end", { active: active?.id, over: over?.id });
     console.log("drag-end", { active: active?.id, over: over?.id });
 
     if (!over || active.id === over.id) return;
@@ -225,7 +93,7 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     updateOrder(updates);
   };
 
-  if (isLoading) return <div>加载章节...</div>;
+  if (isLoading && chapters.length === 0) return <div>加载章节...</div>;
 
   return (
     <DndContext

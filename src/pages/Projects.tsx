@@ -9,6 +9,8 @@ import {
 import { useLanguage } from "../contexts/language_context";
 import { Visualizing } from "../components/visualizing";
 import { useAuthStore } from "../stores/auth_store";
+import CustomInput from "../components/ui/input";
+import { ConfirmDialog } from "../components/confirm_dialog";
 
 const Projects: React.FC = ({}) => {
   const { t } = useLanguage();
@@ -20,6 +22,8 @@ const Projects: React.FC = ({}) => {
   const [error, setError] = useState("");
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+
   const handleNavigateToProject = (projectId: string) => {
     navigate(`/project/${projectId}`);
   };
@@ -50,13 +54,12 @@ const Projects: React.FC = ({}) => {
     }
   };
 
-  const handleDeleteProject = async (projectId: string) => {
-    if (!window.confirm("确认删除该项目？此操作不可恢复。")) {
-      return;
-    }
+  const confirmDeleteProject = async () => {
+    if (!deleteProjectId) return;
 
     try {
-      await deleteProjectMutation.mutateAsync(projectId);
+      await deleteProjectMutation.mutateAsync(deleteProjectId);
+      setDeleteProjectId(null);
     } catch (e) {
       console.error("delete project error", e);
       setError(`${t("delete_failed")}`);
@@ -68,21 +71,21 @@ const Projects: React.FC = ({}) => {
       {/* 新增项目表单 */}
       <form
         onSubmit={handleCreateProject}
-        className="mb-6 pb-6 border-b border-gray-200 flex justify-center items-center gap-2 flex-nowrap"
+        className="mb-6 pb-6 border-b border-gray-200 flex justify-between items-center gap-2 flex-nowrap"
       >
-        <input
+        <CustomInput
+          name="title"
+          autoFocus
           type="text"
           value={newProjectTitle}
           onChange={(e) => setNewProjectTitle(e.target.value)}
           placeholder={t("placeholder_work_title")}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dark-blue"
           disabled={isSubmitting}
         />
-
         <button
           type="submit"
           disabled={isSubmitting || !newProjectTitle.trim()}
-          className=" px-3 py-2 bg-dark-green text-white rounded-lg  disabled:bg-gray-400 transition-colors font-semibold"
+          className=" px-3 py-2 bg-dark-blue text-white rounded-lg  disabled:bg-gray-400 transition-colors font-semibold"
         >
           {isSubmitting ? <Loader /> : <DiamondPlus />}
         </button>
@@ -91,9 +94,7 @@ const Projects: React.FC = ({}) => {
 
       {/* 项目列表 */}
       <div className="space-y-2">
-        {/* <h3 className="font-semibold text-gray-700 mb-4">
-              {t("my_works")}
-            </h3> */}
+        <h3 className="font-semibold text-dark-blue mb-4">{t("my_works")}</h3>
         {projects.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t("work_empty")}</p>
         ) : (
@@ -103,23 +104,26 @@ const Projects: React.FC = ({}) => {
                 key={project.id}
                 className="flex flex-col items-center justify-between p-3 "
               >
-                <div className="w-full flex items-center justify-between flex-wrap">
+                <div className="w-full flex items-center justify-between flex-nowrap">
                   <p className="font-medium text-gray-800 truncate">
                     {project.title}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(project.date_created).toLocaleDateString("zh-CN")}
-                  </p>
-                  <div className="flex items-center gap-2 ml-2">
+
+                  <div className="flex items-center gap-3 ml-2">
+                    <p className="text-xs text-gray-500">
+                      {new Date(project.date_created).toLocaleDateString(
+                        "zh-CN"
+                      )}
+                    </p>
                     <button
                       onClick={() => handleNavigateToProject(project.id)}
-                      className="px-3 py-1 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+                      className=" text-dark-blue"
                     >
                       <Pencil size={18} />
                     </button>
                     <button
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      onClick={() => setDeleteProjectId(project.id)}
+                      className=" text-dark-red"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -133,6 +137,17 @@ const Projects: React.FC = ({}) => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteProjectId}
+        onClose={() => setDeleteProjectId(null)}
+        onConfirm={confirmDeleteProject}
+        title={t("delete_title")}
+        description={t("delete_confirm")}
+        confirmText={t("confirm_delete")}
+        cancelText={t("cancel")}
+        isDestructive
+      />
     </div>
   );
 };

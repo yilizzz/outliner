@@ -6,7 +6,7 @@ import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
 const MAX_PIN_LENGTH = 4;
-
+import CustomInput from "./ui/input";
 const PinUnlockScreen: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -112,15 +112,25 @@ const PinUnlockScreen: React.FC = () => {
           </div>
         )}
 
-        <input
+        {/* <input
           type="number"
           value={pin}
           onChange={handlePinChange}
           placeholder={"••••"}
-          className="w-full p-4 text-center text-3xl tracking-widest border-4 border-blue-400 rounded-lg focus:ring-blue-600 focus:border-blue-600 transition duration-150 disabled:bg-gray-100"
+          className="w-full p-4 text-center text-3xl tracking-widest border-4 border-dark-blue rounded-lg focus:ring-dark-green focus:border-dark-green transition duration-150 disabled:bg-gray-100"
           maxLength={MAX_PIN_LENGTH}
           autoFocus
           disabled={isProcessing}
+        /> */}
+        <CustomInput
+          type="number"
+          value={pin}
+          onChange={handlePinChange}
+          placeholder={"••••"}
+          maxLength={MAX_PIN_LENGTH}
+          autoFocus
+          disabled={isProcessing}
+          className="text-center text-3xl p-4"
         />
 
         <p className="text-center text-sm text-gray-400 mt-6">
