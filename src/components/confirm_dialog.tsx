@@ -9,7 +9,6 @@ interface ConfirmDialogProps {
   description: string;
   confirmText?: string;
   cancelText?: string;
-  isDestructive?: boolean;
 }
 
 export const ConfirmDialog = ({
@@ -18,9 +17,8 @@ export const ConfirmDialog = ({
   onConfirm,
   title,
   description,
-  confirmText = "确认",
-  cancelText = "取消",
-  isDestructive = false,
+  confirmText,
+  cancelText,
 }: ConfirmDialogProps) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -38,7 +36,7 @@ export const ConfirmDialog = ({
               {cancelText}
             </Button>
             <Button
-              variant={isDestructive ? "danger" : "primary"}
+              variant="danger"
               onClick={() => {
                 onConfirm();
                 onClose();

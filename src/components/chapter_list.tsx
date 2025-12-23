@@ -19,7 +19,7 @@ import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
 import { useState } from "react";
 import { SortableChapterItem } from "./sortable_chapter_item";
-
+import { GripVertical, Loader } from "lucide-react";
 // 拖拽中的占位预览（可选）
 const DragOverlayItem = ({
   chapter,
@@ -28,10 +28,14 @@ const DragOverlayItem = ({
 }) => {
   if (!chapter) return null;
   return (
-    <div className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-lg opacity-80">
-      <span className="text-gray-400">☰</span>
+    <div className="flex items-center gap-3 p-3 rounded-md bg-white shadow-lg opacity-80 transition-all duration-700">
+      <span className="text-dark-blue">
+        <GripVertical />
+      </span>
       <div>
-        <h3 className="font-medium">{chapter.title}</h3>
+        <h3 className="font-medium text-dark-blue truncate leading-tight">
+          {chapter.title}
+        </h3>
       </div>
     </div>
   );
@@ -67,7 +71,6 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
   const handleDragEnd = (event: any) => {
     setActiveId(null);
     const { active, over } = event;
-    console.log("drag-end", { active: active?.id, over: over?.id });
 
     if (!over || active.id === over.id) return;
 
@@ -93,7 +96,12 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     updateOrder(updates);
   };
 
-  if (isLoading && chapters.length === 0) return <div>加载章节...</div>;
+  if (isLoading && chapters.length === 0)
+    return (
+      <div>
+        <Loader className="mr-2 h-4 w-4 animate-spin" />
+      </div>
+    );
 
   return (
     <DndContext

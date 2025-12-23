@@ -36,7 +36,7 @@ const colorTheme = {
   },
 };
 
-const CustomInput = forwardRef<HTMLInputElement, InputProps>(
+const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     { color = "blue", label, error, className, containerClassName, ...props },
     ref
@@ -47,7 +47,7 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
 
     // 基础样式
     const baseStyles =
-      "outline-none px-3 py-1 w-full rounded-lg border bg-gray-50 transition-all duration-150 ease-in-out placeholder:text-gray-200";
+      "outline-none px-3 py-1 w-full rounded-lg border bg-gray-50 transition-all duration-150 ease-in-out placeholder:text-gray-300";
 
     // 动态组合逻辑
     const statusStyles = isError
@@ -59,7 +59,9 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
         className={`flex-1 flex flex-col gap-1.5 ${containerClassName || ""}`}
       >
         {label && (
-          <label className={`font-bold tracking-wider ml-0.5 ${theme.label}`}>
+          <label
+            className={`font-bold tracking-wider ml-0.5 ${theme.label} uppercase`}
+          >
             {label}
           </label>
         )}
@@ -87,6 +89,6 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-CustomInput.displayName = "CustomInput";
+Input.displayName = "Input";
 
-export default CustomInput;
+export default Input;

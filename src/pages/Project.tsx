@@ -9,9 +9,12 @@ import { ChapterEditOrAddModal } from "../components/chapter_edit_or_add_modal";
 import type { Schema } from "../lib/directus";
 import { ChapterList } from "../components/chapter_list";
 import { useUpdateProject } from "../queries/projects.queries";
-import { DiamondPlus } from "lucide-react";
+import { DiamondPlus, Save, Pencil, Bug } from "lucide-react";
 import { Button } from "../components/ui/button";
-
+import { Loader } from "lucide-react";
+import { useLanguage } from "../contexts/language_context";
+import Input from "../components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: project, isLoading: isProjectLoading } =
@@ -24,7 +27,8 @@ const Project: React.FC = () => {
   const { mutateAsync: updateProject } = useUpdateProject(project?.id || "");
   const { mutateAsync: createChapter } = useCreateChapter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
+  const { t } = useLanguage();
+  const [error, setError] = useState("");
   // 同步从 API 获取的 chapters 到本地状态
   useEffect(() => {
     if (chaptersData) {
@@ -44,64 +48,106 @@ const Project: React.FC = () => {
     const maxSort = Math.max(...chapters.map((c) => c.sort || 0));
     return maxSort + 1;
   };
+  const handleSave = async () => {
+    if (!title.trim()) {
+      setError(t("title_empty_error"));
+      // 手机端震动反馈 (如果有 Capacitor Haptics 插件)
+      // Haptics.impact({ style: ImpactStyle.Light });
+      return;
+    }
 
+    try {
+      await updateProject({ id: project?.id, title: title.trim() });
+      setIsEditing(false); // 动画会触发 exit={{ width: 0 }}
+    } catch (e) {
+      setError(t("save_failed"));
+    }
+  };
   if (isProjectLoading || isChaptersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading...
+        <Loader className="mr-2 h-4 w-4 animate-spin" />
       </div>
     );
   }
 
-  if (!slug || !project) return <div>Project not found</div>;
+  if (!slug || !project)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        {t("empty")}
+      </div>
+    );
 
   return (
     <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto">
-      <div className="flex items-center gap-2 mb-4">
-        {isEditing ? (
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        ) : (
-          <div className="flex-1 text-lg font-bold truncate">{title}</div>
-        )}
-
-        {isEditing ? (
-          <Button
-            size="sm"
-            onClick={async () => {
-              {
-                await updateProject({ id: project?.id, title: title });
-                setIsEditing(false);
-              }
-            }}
-          >
-            保存
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            编辑
-          </Button>
+      <div>
+        <div className="flex items-center gap-2 mb-4 h-10 relative">
+          <AnimatePresence mode="wait">
+            {isEditing ? (
+              <motion.form
+                key="input-editor"
+                // 使用 form 的 onSubmit 处理手机键盘的“前往/完成”键
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+                className="flex-1 flex items-center gap-2"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "100%" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.3, ease: "linear" }} // 纯线性展开
+              >
+                <Input
+                  className="flex-1 h-9"
+                  type="text"
+                  inputMode="text" // 确保调起标准文本键盘
+                  enterKeyHint="done" // 关键：将手机键盘确认键文字改为“完成”
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  autoFocus
+                />
+                <Button
+                  type="submit" // 设为 submit 类型
+                  size="sm"
+                  className="shrink-0"
+                >
+                  <Save size={18} />
+                </Button>
+              </motion.form>
+            ) : (
+              <motion.div
+                key="text-display"
+                className="flex-1 flex items-center justify-between flex-nowrap min-w-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex-1 text-lg font-bold truncate text-dark-blue min-w-0 mr-4">
+                  {title}
+                </div>
+                <Button
+                  className="flex-shrink-0"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil size={18} />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        {error && (
+          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
+            <Bug /> {error}
+          </div>
         )}
       </div>
-
       <ChapterList projectId={slug} />
 
-      <div className="fixed bottom-6 right-6 z-10">
-        <Button
-          size="icon"
-          className="h-14 w-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-          onClick={() => setIsAddModalOpen(true)}
-        >
+      <div className="fixed right-4 z-10">
+        <Button size="icon" onClick={() => setIsAddModalOpen(true)}>
           <DiamondPlus size={24} />
         </Button>
       </div>

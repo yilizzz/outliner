@@ -9,6 +9,7 @@ import { ConfirmDialog } from "./confirm_dialog";
 import { useLanguage } from "../contexts/language_context";
 import { Button } from "./ui/button";
 
+import { Pencil, Trash2, GripVertical } from "lucide-react";
 // 单个章节项（可排序）
 export const SortableChapterItem = ({
   chapter,
@@ -37,7 +38,6 @@ export const SortableChapterItem = ({
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 100 : "auto",
   };
-
   const preview = (chapter.content || "").slice(0, 10);
 
   return (
@@ -45,40 +45,39 @@ export const SortableChapterItem = ({
       <div
         ref={setNodeRef}
         style={style}
-        className="flex items-center gap-3 p-3 border rounded-md bg-white shadow-sm mb-2 cursor-move hover:bg-gray-50 touch-manipulation"
+        className="flex items-center gap-3 p-2 px-3 rounded-lg bg-light-green shadow-md mb-2 touch-manipulation h-16" // 显式设置高度 h-16
         {...attributes}
         {...listeners}
       >
-        <button
-          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 p-2 touch-none"
-          aria-label="拖拽排序"
-        >
-          ☰
+        <button className="cursor-grab active:cursor-grabbing text-dark-blue p-2 touch-none">
+          <GripVertical size={20} />
         </button>
-        <div className="flex-1">
-          <h3 className="font-medium">
+
+        <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden">
+          <h3 className="font-medium text-dark-blue truncate leading-tight">
             {chapter.title}
-            <span className="ml-2 text-sm text-gray-500">{preview}</span>
           </h3>
+          <p className="text-xs text-dark-blue/60 truncate leading-tight mt-0.5">
+            {preview}
+          </p>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex gap-1">
+          {" "}
+          {/* 稍微缩小按钮间距 */}
           <Button
             size="sm"
-            variant="outline"
-            onMouseDown={(e) => e.stopPropagation()}
+            variant="ghost"
             onClick={() => setIsEditModalOpen(true)}
           >
-            编辑
+            <Pencil size={16} />
           </Button>
           <Button
             size="sm"
-            variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-            onMouseDown={(e) => e.stopPropagation()}
+            variant="ghost"
             onClick={() => setIsDeleteConfirmOpen(true)}
-            isLoading={isDeleting}
           >
-            删除
+            <Trash2 size={16} />
           </Button>
         </div>
       </div>
@@ -112,7 +111,6 @@ export const SortableChapterItem = ({
         description={t("delete_confirm")}
         confirmText={t("confirm_delete")}
         cancelText={t("cancel")}
-        isDestructive
       />
     </>
   );

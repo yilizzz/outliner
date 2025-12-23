@@ -28,12 +28,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center rounded-lg font-medium transition-all focus:outline-none disabled:opacity-50 disabled:pointer-events-none active:scale-95 touch-manipulation";
 
     const variants = {
-      primary: "bg-dark-blue text-white active:bg-dark-blue",
-      secondary: "bg-dark-green text-white active:bg-dark-green",
-      danger: "bg-dark-red text-white active:bg-dark-red",
-      ghost: "bg-light-gray text-dark-blue active:bg-dark-blue",
-      outline:
-        "border border-gray-300 bg-transparent text-gray-700 active:bg-gray-50",
+      primary: "bg-dark-blue text-white ",
+      secondary: "bg-dark-green text-white ",
+      danger: "bg-dark-red text-white ",
+      ghost: "bg-transparent text-dark-blue ",
+      outline: "border border-gray-300 bg-transparent text-dark-blue ",
     };
 
     const sizes = {

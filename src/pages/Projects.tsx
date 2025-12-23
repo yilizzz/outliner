@@ -9,7 +9,7 @@ import {
 import { useLanguage } from "../contexts/language_context";
 import { Visualizing } from "../components/visualizing";
 import { useAuthStore } from "../stores/auth_store";
-import CustomInput from "../components/ui/input";
+import Input from "../components/ui/input";
 import { ConfirmDialog } from "../components/confirm_dialog";
 
 const Projects: React.FC = ({}) => {
@@ -71,9 +71,9 @@ const Projects: React.FC = ({}) => {
       {/* 新增项目表单 */}
       <form
         onSubmit={handleCreateProject}
-        className="mb-6 pb-6 border-b border-gray-200 flex justify-between items-center gap-2 flex-nowrap"
+        className="mb-6 pb-6 border-b border-dark-blue flex justify-between items-center gap-2 flex-nowrap"
       >
-        <CustomInput
+        <Input
           name="title"
           autoFocus
           type="text"
@@ -105,7 +105,7 @@ const Projects: React.FC = ({}) => {
                 className="flex flex-col items-center justify-between p-3 "
               >
                 <div className="w-full flex items-center justify-between flex-nowrap">
-                  <p className="font-medium text-gray-800 truncate">
+                  <p className="font-medium text-dark-blue truncate">
                     {project.title}
                   </p>
 
@@ -146,7 +146,6 @@ const Projects: React.FC = ({}) => {
         description={t("delete_confirm")}
         confirmText={t("confirm_delete")}
         cancelText={t("cancel")}
-        isDestructive
       />
     </div>
   );

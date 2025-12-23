@@ -5,8 +5,9 @@ import { deriveKey, decryptData, CryptoHelpers } from "../utils/crypto_utils";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
+import { LockKeyhole, Bug } from "lucide-react";
 const MAX_PIN_LENGTH = 4;
-import CustomInput from "./ui/input";
+import Input from "./ui/input";
 const PinUnlockScreen: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -36,45 +37,66 @@ const PinUnlockScreen: React.FC = () => {
     async (currentPin: string) => {
       if (isProcessing) return;
       setIsProcessing(true);
-      setError(null);
+      setError(null); // 重置之前的错误
 
       try {
-        // A. 从 Secure Storage 读取数据
+        // 1. 加载数据阶段
         const storedData = await loadInitialData();
         if (!storedData) {
-          throw new Error("应用数据丢失或未初始化。");
+          // 这种情况通常是本地存储被清空
+          throw new Error("DATA_LOST");
         }
 
         const { salt, encryptedCredsPackage, iterations } = storedData;
+        let decryptedCredentials;
 
-        // B. 用 PIN 和 Salt 派生解密密钥
-        const saltBuffer = CryptoHelpers.base64UrlToBuffer(salt);
-        const derivedKey = await deriveKey(currentPin, saltBuffer, iterations);
+        try {
+          // 2. 解密阶段
+          const saltBuffer = CryptoHelpers.base64UrlToBuffer(salt);
+          const derivedKey = await deriveKey(
+            currentPin,
+            saltBuffer,
+            iterations
+          );
 
-        // C. 解密得到 Directus 凭证
-        const encryptedPackage = JSON.parse(encryptedCredsPackage);
-        const decryptedCredentials = await decryptData(
-          { iv: encryptedPackage.iv, cipherText: encryptedPackage.cipherText },
-          derivedKey
-        );
+          const encryptedPackage = JSON.parse(encryptedCredsPackage);
+          decryptedCredentials = await decryptData(
+            {
+              iv: encryptedPackage.iv,
+              cipherText: encryptedPackage.cipherText,
+            },
+            derivedKey
+          );
+        } catch (cryptoError) {
+          // 解密失败通常意味着 PIN 错误
+          throw new Error("INVALID_PIN");
+        }
 
-        // 登录 Directus 获取 Token
-        console.log("尝试使用解密凭证登录 Directus...");
+        // 3. 准备登录数据
         const { username, password } = decryptedCredentials;
-        const email = username + "@example.com";
+        const email = `${username}@example.com`;
 
+        // 4. 发起请求阶段
         const res = await fetch(
           `${import.meta.env.VITE_DIRECTUS_URL}/auth/login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: email,
-              password: password,
-            }),
+            body: JSON.stringify({ email, password }),
           }
         );
+
+        // 处理 HTTP 错误状态
+        if (!res.ok) {
+          throw new Error("SERVER_ERROR");
+        }
+
         const authResponse = await res.json();
+
+        // 安全性校验：确保返回了 token
+        if (!authResponse?.data?.access_token) {
+          throw new Error("UNEXPECTED_RESPONSE");
+        }
 
         const auth = {
           access_token: authResponse.data.access_token,
@@ -83,46 +105,51 @@ const PinUnlockScreen: React.FC = () => {
         };
 
         loginWithAuth(auth);
-        //  登录成功后，auth state 更新
-        //  app根组件中的useTokenRefresh 会自动触发并调度刷新
-        // await checkAndRefreshToken();
-        // 成功：跳转到主应用界面
         navigate("/dashboard");
-      } catch (e) {
-        console.error("解锁或登录失败:", e);
-        // 失败：可能是 PIN 错误、密钥派生失败、解密失败或网络/Directus 登录失败
-        setError(`${t("pin_incorrect")}`);
-        setPin(""); // 清空 PIN 码
+      } catch (e: any) {
+        // 5. 精细化错误分发
+        console.error("Unlock error:", e);
+
+        switch (e.message) {
+          case "DATA_LOST":
+            setError(t("error_data_lost")); // 提示数据丢失，建议重新登录
+            break;
+          case "INVALID_PIN":
+            setError(t("pin_incorrect")); // PIN 错误
+            setPin(""); // 清空输入框
+            break;
+          case "AUTH_FAILED":
+            setError(t("auth_expired_or_failed")); // 账号或密码已在后端失效
+            break;
+          case "SERVER_ERROR":
+            setError(t("server_connection_error")); // 网络或服务器问题
+            break;
+          default:
+            setError(t("unknown_error")); // 其他未知错误
+        }
       } finally {
         setIsProcessing(false);
       }
     },
-    [isProcessing, loadInitialData, loginWithAuth, navigate]
+    [isProcessing, loadInitialData, loginWithAuth, navigate, t]
   );
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">🔒</h1>
+      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-2">
+        <span className="text-dark-blue">
+          <LockKeyhole size={24} />
+        </span>
+
         <p className="text-gray-500 mb-6">{t("unlock")}</p>
 
         {error && (
-          <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            ⚠️ {error}
+          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
+            <Bug /> {error}
           </div>
         )}
 
-        {/* <input
-          type="number"
-          value={pin}
-          onChange={handlePinChange}
-          placeholder={"••••"}
-          className="w-full p-4 text-center text-3xl tracking-widest border-4 border-dark-blue rounded-lg focus:ring-dark-green focus:border-dark-green transition duration-150 disabled:bg-gray-100"
-          maxLength={MAX_PIN_LENGTH}
-          autoFocus
-          disabled={isProcessing}
-        /> */}
-        <CustomInput
+        <Input
           type="number"
           value={pin}
           onChange={handlePinChange}

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import CustomInput from "./ui/input";
+import Input from "./ui/input";
 import { useLanguage } from "../contexts/language_context";
 import type { Schema } from "../lib/directus";
 import { Button } from "./ui/button";
-
+import { X } from "lucide-react";
 interface ChapterEditOrAddModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -44,44 +44,45 @@ export const ChapterEditOrAddModal = ({
         {/* 内容主体 */}
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-2xl z-[101] focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in data-[state=closed]:fade-out duration-200">
           {/* 头部 */}
-          <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-            <Dialog.Title className="text-lg font-bold text-slate-800">
-              {initialData ? "编辑章节" : "新增章节"}
+          <div className="px-6 py-4 border-b border-dark-blue flex justify-between items-center bg-gray-50/50 rounded-t-xl">
+            <Dialog.Title className="text-lg font-bold text-dark-blue">
+              {initialData
+                ? t("chapter_modal_title_edit")
+                : t("chapter_modal_title_add")}
             </Dialog.Title>
             <Dialog.Close className="text-slate-400 hover:text-slate-600 transition-colors p-1 outline-none">
-              ✕
+              <X />
             </Dialog.Close>
           </div>
 
           {/* 表单区域 */}
           <div className="p-6 space-y-5">
-            <CustomInput
+            <Input
               label={t("chapter_title")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="请输入章节名称..."
-              color="blue"
+              placeholder={t("chapter_title_placeholder")}
               autoFocus
             />
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-0.5">
-                章节内容
+                {t("chapter_content")}
               </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={12}
-                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-150 resize-none text-slate-700"
-                placeholder="在此编写章节详细内容..."
+                className="w-full px-3 py-3 border border-dark-green rounded-lg focus:ring-3 focus:ring-light-green  outline-none transition-all duration-150 resize-none text-dark-green placeholder:text-gray-200"
+                placeholder={t("chapter_content_placeholder")}
               />
             </div>
           </div>
 
           {/* 底部按钮 */}
-          <div className="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50/50 rounded-b-xl">
+          <div className="px-6 py-4 border-t border-dark-blue flex justify-end gap-3 bg-gray-50/50 rounded-b-xl">
             <Dialog.Close asChild>
-              <Button variant="ghost">取消</Button>
+              <Button variant="ghost">{t("cancel")}</Button>
             </Dialog.Close>
 
             <Button
@@ -89,7 +90,7 @@ export const ChapterEditOrAddModal = ({
               disabled={loading || !title}
               isLoading={loading}
             >
-              保存修改
+              {t("save_changes")}
             </Button>
           </div>
 

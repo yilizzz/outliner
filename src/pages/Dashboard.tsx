@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { getRandomColors, lightColors } from "../utils/color_utils";
 import { generateTornEdge } from "../utils/torn_edge";
-import CustomInput from "../components/ui/input";
+import Input from "../components/ui/input";
 const Dashboard = () => {
   const { t, currentLang } = useLanguage();
   const limit = 6;
@@ -138,7 +138,7 @@ const Dashboard = () => {
           <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-dark-green opacity-50">
             {searchKeyword ? null : <Search size={24} />}
           </span>
-          <CustomInput
+          <Input
             name="search"
             autoFocus
             type="text"

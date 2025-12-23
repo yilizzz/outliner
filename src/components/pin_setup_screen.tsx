@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { createUser, createItem } from "@directus/sdk";
+import { createUser, createItem, createItems } from "@directus/sdk";
 import { useNavigate } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
@@ -15,8 +15,8 @@ import { useSecureData } from "../stores/secure_data_store";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
-import { useCreateProject } from "../queries/projects.queries";
 import { useCreateChapter } from "../queries/chapter.queries";
+import { Bug, Loader } from "lucide-react";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
   const { t, currentLang } = useLanguage();
@@ -30,7 +30,7 @@ const PinSetupScreen: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const createChapterMutation = useCreateChapter();
-  // 动态创建 validation schema，每次语言改变时重新生成
+
   const getPinSetSchema = () =>
     Yup.object().shape({
       pin: Yup.string()
@@ -52,116 +52,158 @@ const PinSetupScreen: React.FC = () => {
   };
   const handleSetupComplete = useCallback(
     async (finalPin: string) => {
+      if (isProcessing) return;
+      setIsProcessing(true);
+      setError(null);
+      alert("Current URL: " + import.meta.env.VITE_DIRECTUS_URL);
       try {
-        setIsProcessing(true);
+        // --- 阶段 1: 加密准备 ---
+        let saltBuffer, derivedKey;
+        try {
+          // 检查 API 是否存在
+          if (!window.crypto || !window.crypto.subtle) {
+            throw new Error("CRYPTO_NOT_AVAILABLE");
+          }
 
-        // --- 步骤 2: 生成 Salt & 派生密钥 ---
-        const saltBuffer = generateSalt();
-        const derivedKey = await deriveKey(finalPin, saltBuffer, ITERATIONS);
+          saltBuffer = generateSalt();
+          derivedKey = await deriveKey(finalPin, saltBuffer, ITERATIONS);
+        } catch (e) {
+          // 如果是环境问题
+          if (e.message === "CRYPTO_NOT_AVAILABLE") {
+            throw new Error("ENV_UNSUPPORTED");
+          }
+          // 如果是算法执行报错（可能是参数问题）
+          throw new Error("CRYPTO_EXECUTION_FAILED");
+        }
 
-        // --- 步骤 3: 生成 Directus 凭证 ---
+        // --- 阶段 2: 远程账户创建 ---
         const { username, password } = await credentials.generateCredentials();
-
-        // --- 步骤 4: (新增/修正) 在 Directus 后台创建用户 ---
-        const newUser = await directus.request(
-          createUser({
-            email: `${username}@example.com`,
-            password: password,
-            role: import.meta.env.VITE_DIRECTUS_ROLE_ID,
-            status: "active",
-          })
-        );
+        let newUser;
+        try {
+          newUser = await directus.request(
+            createUser({
+              email: `${username}@example.com`,
+              password: password,
+              role: import.meta.env.VITE_DIRECTUS_ROLE_ID,
+              status: "active",
+            })
+          );
+        } catch (e) {
+          throw new Error("CREATE_USER_FAILED");
+        }
 
         await saveUserIdToStorage(newUser.id);
-        // --- 新增：用刚创建的凭证登录一次以获取 token（access + refresh） ---
-        const email = username + "@example.com";
-        //Directus SDK 不返回refresh token，需调用 REST API
-        // const response = await directus.login({
-        //   email,
-        //   password,
-        // });
-        // console.log(response);
+        const email = `${username}@example.com`;
 
-        const res = await fetch(
-          `${import.meta.env.VITE_DIRECTUS_URL}/auth/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: email,
-              password: password,
-            }),
-          }
-        );
-        const authResponse = await res.json();
+        // --- 阶段 3: 获取访问令牌 (Auth) ---
+        let authResponse;
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_DIRECTUS_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            }
+          );
+          if (!res.ok) throw new Error();
+          authResponse = await res.json();
+        } catch (e) {
+          throw new Error("AUTH_SESSION_FAILED");
+        }
+
         const auth = {
           access_token: authResponse.data.access_token,
           refresh_token: authResponse.data.refresh_token,
           expires: expiresAbsolute(authResponse.data.expires),
         };
         loginWithAuth(auth);
-        // 2. 登录成功后，useTokenRefresh 会自动开始工作
-        //    不需要手动调用 checkAndRefreshToken
-        // await checkAndRefreshToken();
 
-        // 为不同语言用户生成示例作品（直接用 Directus API，避免在回调中调用 hook）
-        const projectTitle =
-          currentLang === "en" ? "My example work" : "示例作品";
-        const createdProject = await directus.request(
-          createItem("projects", {
-            title: projectTitle,
-            user_created: newUser.id,
-          })
-        );
-        const project = createdProject?.id || (createdProject as any);
-        for (let i = 0; i < 3; i++) {
-          await createChapterMutation.mutateAsync({
-            project,
-            title: `${i + 1}`,
-            content: "",
-            sort: i + 1,
-          });
+        // --- 阶段 4: 初始化用户数据 (Project/Chapters) ---
+        try {
+          const projectTitle =
+            currentLang === "en" ? "My example work" : "示例作品";
+          const createdProject = await directus.request(
+            createItem("projects", {
+              title: projectTitle,
+              user_created: newUser.id,
+            })
+          );
+          const project = createdProject?.id;
+
+          await directus.request(
+            createItems("chapters", [
+              { project, title: "1", sort: 1, content: "" },
+              { project, title: "2", sort: 2, content: "" },
+              { project, title: "3", sort: 3, content: "" },
+            ])
+          );
+        } catch (e) {
+          console.warn("Initial data creation partially failed", e);
         }
 
-        // --- 步骤 4: 加密 Directus 凭证 ---
-        const encryptedCredentials = await credentials.encryptData(
-          { username, password },
-          derivedKey
-        );
+        // --- 阶段 5: 本地持久化存储 ---
+        try {
+          const encryptedCredentials = await credentials.encryptData(
+            { username, password },
+            derivedKey
+          );
+          const saltBase64 = CryptoHelpers.bufferToBase64Url(saltBuffer);
+          const credentialsToStore = JSON.stringify({
+            ...encryptedCredentials,
+            iterations: ITERATIONS,
+          });
+          await saveInitialData(saltBase64, credentialsToStore);
+        } catch (e) {
+          throw new Error("LOCAL_STORAGE_FAILED");
+        }
 
-        // --- 步骤 5: 存储 ---
-
-        // 5a. 存储 Salt (Base64 URL Safe 格式)
-        const saltBase64 = CryptoHelpers.bufferToBase64Url(saltBuffer);
-
-        // 5b. 存储加密凭证 (需要包含 IV/Nonce)
-        const credentialsToStore = JSON.stringify({
-          ...encryptedCredentials, // 包含 cipherText 和 IV
-          iterations: ITERATIONS, // 存储迭代次数，以防未来修改
-        });
-        await saveInitialData(saltBase64, credentialsToStore);
-        console.log("数据已存储:", saltBase64, credentialsToStore);
-        // --- 步骤 6: 生成备份码 (简化处理：通常是 PIN + 凭证的另一个加密版本) ---
-        // 暂时忽略备份码的完整生成，留待后续步骤。
-
-        console.log("初始化所有安全组件成功！");
         navigate("/dashboard");
-      } catch (e) {
-        console.error("初始化失败：", e);
-        setError(`${t("setup_error")}`);
+      } catch (e: any) {
+        console.error("Setup Error Details:", e);
+
+        // 根据错误标识符映射多语言文案
+        switch (e.message) {
+          case "ENV_UNSUPPORTED":
+            setError(t("error_crypto_unsupported"));
+            break;
+          case "CRYPTO_EXECUTION_FAILED":
+            setError(t("error_crypto_execution"));
+            break;
+          case "CREATE_USER_FAILED":
+            setError(t("error_network_or_server"));
+            break;
+          case "AUTH_SESSION_FAILED":
+            setError(t("error_auth_service"));
+            break;
+          case "LOCAL_STORAGE_FAILED":
+            setError(t("error_storage_full"));
+            break;
+          default:
+            setError(t("setup_error"));
+        }
       } finally {
         setIsProcessing(false);
       }
     },
-    [navigate]
+    [
+      navigate,
+      isProcessing,
+      currentLang,
+      loginWithAuth,
+      saveInitialData,
+      saveUserIdToStorage,
+      t,
+      createChapterMutation,
+    ]
   );
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-4 flex justify-center items-center">
-      <div className="w-full flex flex-col justify-start items-center max-w-md mt-12 bg-white p-8 rounded-xl shadow-2xl border border-gray-100 text-center">
-        <p className=" text-gray-500 mb-6">{t("set_pin")}</p>
+    <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-2">
+        <p className=" text-dark-blue">{t("set_pin")}</p>
         {error && (
-          <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            ⚠️ {error}
+          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
+            <Bug /> {error}
           </div>
         )}
         <Formik
@@ -177,7 +219,9 @@ const PinSetupScreen: React.FC = () => {
           {({ errors, touched }) => (
             <Form className="w-full">
               <div className="w-full flex flex-col justify-start items-start gap-4">
-                <label htmlFor="pin">Pin</label>
+                <label htmlFor="pin" className="text-dark-blue">
+                  Pin
+                </label>
                 <Field
                   id="pin"
                   name="pin"
@@ -185,9 +229,13 @@ const PinSetupScreen: React.FC = () => {
                   className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-shadow-blue-600"
                 />
                 {errors.pin && touched.pin ? (
-                  <div className="text-amber-800">{errors.pin}</div>
+                  <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
+                    {errors.pin}
+                  </div>
                 ) : null}
-                <label htmlFor="confirmPin">{t("confirm_pin")}</label>
+                <label htmlFor="confirmPin" className="text-dark-blue">
+                  {t("confirm_pin")}
+                </label>
                 <Field
                   id="confirmPin"
                   name="confirmPin"
@@ -195,39 +243,21 @@ const PinSetupScreen: React.FC = () => {
                   className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.confirmPin && touched.confirmPin ? (
-                  <div className="text-amber-800">{errors.confirmPin}</div>
+                  <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
+                    {errors.confirmPin}
+                  </div>
                 ) : null}
                 <div className="w-full text-center">
-                  <button type="submit">{t("submit")}</button>
+                  <button type="submit" className="text-dark-blue">
+                    {t("submit")}
+                  </button>
                 </div>
               </div>
             </Form>
           )}
         </Formik>
         {isProcessing ? (
-          <div className="flex justify-center items-center">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 16a8 8 0 100-16 8 8 0 000 16z"
-              ></path>
-            </svg>
-            ...
-          </div>
+          <Loader className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <></>
         )}
