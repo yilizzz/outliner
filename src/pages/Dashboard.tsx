@@ -140,7 +140,6 @@ const Dashboard = () => {
           </span>
           <Input
             name="search"
-            autoFocus
             type="text"
             placeholder=""
             value={searchKeyword}
@@ -174,7 +173,7 @@ const Dashboard = () => {
               className="rounded-lg shadow-md hover:shadow-lg overflow-hidden flex flex-col transition-all duration-1000 "
               style={{
                 backgroundColor: bgColor,
-                backgroundImage: 'url("rice-paper-3.png")',
+                backgroundImage: 'url("notebook-dark.png")',
                 clipPath: edgeClipPath,
               }}
             >

@@ -16,7 +16,8 @@ import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
 import { useCreateChapter } from "../queries/chapter.queries";
-import { Bug, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
+import { ErrorLine } from "./ui/error_line";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
   const { t, currentLang } = useLanguage();
@@ -55,7 +56,6 @@ const PinSetupScreen: React.FC = () => {
       if (isProcessing) return;
       setIsProcessing(true);
       setError(null);
-      alert("Current URL: " + import.meta.env.VITE_DIRECTUS_URL);
       try {
         // --- 阶段 1: 加密准备 ---
         let saltBuffer, derivedKey;
@@ -199,13 +199,9 @@ const PinSetupScreen: React.FC = () => {
   );
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-2">
-        <p className=" text-dark-blue">{t("set_pin")}</p>
-        {error && (
-          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
-            <Bug /> {error}
-          </div>
-        )}
+      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-6">
+        <p className=" text-dark-blue text-center font-bold">{t("set_pin")}</p>
+        {error && <ErrorLine>{error}</ErrorLine>}
         <Formik
           initialValues={{
             pin: "",
@@ -217,8 +213,8 @@ const PinSetupScreen: React.FC = () => {
           }}
         >
           {({ errors, touched }) => (
-            <Form className="w-full">
-              <div className="w-full flex flex-col justify-start items-start gap-4">
+            <Form className="w-full flex flex-col justify-start items-start gap-4">
+              <div className="w-full flex flex-col justify-start items-start gap-1.5">
                 <label htmlFor="pin" className="text-dark-blue">
                   Pin
                 </label>
@@ -226,13 +222,13 @@ const PinSetupScreen: React.FC = () => {
                   id="pin"
                   name="pin"
                   placeholder={t("placeholder_pin")}
-                  className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-shadow-blue-600"
+                  className="w-full h-10 px-3 border border-dark-blue rounded-lg focus:outline-none focus:ring-3 focus:ring-light-blue"
                 />
                 {errors.pin && touched.pin ? (
-                  <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
-                    {errors.pin}
-                  </div>
+                  <ErrorLine>{errors.pin}</ErrorLine>
                 ) : null}
+              </div>
+              <div className="w-full flex flex-col justify-start items-start gap-1.5">
                 <label htmlFor="confirmPin" className="text-dark-blue">
                   {t("confirm_pin")}
                 </label>
@@ -240,12 +236,10 @@ const PinSetupScreen: React.FC = () => {
                   id="confirmPin"
                   name="confirmPin"
                   placeholder={t("placeholder_confirm_pin")}
-                  className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-10 px-3 border border-dark-blue rounded-lg focus:outline-none focus:ring-3 focus:ring-light-blue"
                 />
                 {errors.confirmPin && touched.confirmPin ? (
-                  <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
-                    {errors.confirmPin}
-                  </div>
+                  <ErrorLine>{errors.confirmPin}</ErrorLine>
                 ) : null}
                 <div className="w-full text-center">
                   <button type="submit" className="text-dark-blue">

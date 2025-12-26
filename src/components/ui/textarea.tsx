@@ -1,15 +1,15 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
+import { forwardRef, type TextareaHTMLAttributes } from "react";
 import { ErrorLine } from "./error_line";
 import { colorTheme, type Color } from "./theme";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   color?: Color;
   label?: string;
   error?: string;
   containerClassName?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     { color = "blue", label, error, className, containerClassName, ...props },
     ref
@@ -39,7 +39,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
 
-        <input
+        <textarea
           ref={ref}
           className={`
             ${baseStyles}
@@ -49,7 +49,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ${className || ""}
           `}
           {...props}
-          maxLength={255}
+          maxLength={5000}
         />
 
         {/* 错误提示 */}
@@ -59,6 +59,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = "Input";
+Textarea.displayName = "Textarea";
 
-export default Input;
+export default Textarea;

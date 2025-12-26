@@ -150,6 +150,7 @@ const PinUnlockScreen: React.FC = () => {
         )}
 
         <Input
+          name="pin"
           type="number"
           value={pin}
           onChange={handlePinChange}

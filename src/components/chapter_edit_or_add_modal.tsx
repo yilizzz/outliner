@@ -5,6 +5,7 @@ import { useLanguage } from "../contexts/language_context";
 import type { Schema } from "../lib/directus";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
+import Textarea from "./ui/textarea";
 interface ChapterEditOrAddModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -58,25 +59,22 @@ export const ChapterEditOrAddModal = ({
           {/* 表单区域 */}
           <div className="p-6 space-y-5">
             <Input
+              name="chapter_title"
               label={t("chapter_title")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("chapter_title_placeholder")}
-              autoFocus
             />
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-0.5">
-                {t("chapter_content")}
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={12}
-                className="w-full px-3 py-3 border border-dark-green rounded-lg focus:ring-3 focus:ring-light-green  outline-none transition-all duration-150 resize-none text-dark-green placeholder:text-gray-200"
-                placeholder={t("chapter_content_placeholder")}
-              />
-            </div>
+            <Textarea
+              color="green"
+              name="chapter_content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={12}
+              placeholder={t("chapter_content_placeholder")}
+              label={t("chapter_content")}
+            />
           </div>
 
           {/* 底部按钮 */}

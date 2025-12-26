@@ -104,7 +104,7 @@ const Project: React.FC = () => {
                   enterKeyHint="done" // 关键：将手机键盘确认键文字改为“完成”
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  autoFocus
+                  name="project_title"
                 />
                 <Button
                   type="submit" // 设为 submit 类型

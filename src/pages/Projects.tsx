@@ -11,7 +11,7 @@ import { Visualizing } from "../components/visualizing";
 import { useAuthStore } from "../stores/auth_store";
 import Input from "../components/ui/input";
 import { ConfirmDialog } from "../components/confirm_dialog";
-
+import { ErrorLine } from "../components/ui/error_line";
 const Projects: React.FC = ({}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -75,7 +75,6 @@ const Projects: React.FC = ({}) => {
       >
         <Input
           name="title"
-          autoFocus
           type="text"
           value={newProjectTitle}
           onChange={(e) => setNewProjectTitle(e.target.value)}
@@ -89,7 +88,7 @@ const Projects: React.FC = ({}) => {
         >
           {isSubmitting ? <Loader /> : <DiamondPlus />}
         </button>
-        {error ? <p className="text-dark-red">{error}</p> : <></>}
+        {error && <ErrorLine>{error}</ErrorLine>}
       </form>
 
       {/* 项目列表 */}
