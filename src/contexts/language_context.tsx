@@ -3,7 +3,9 @@ import React, {
   useState,
   useContext,
   type ReactNode,
+  useEffect,
 } from "react";
+import { SecureStorage, SECURE_KEYS } from "../utils/storage_utils";
 type Language = "en" | "zh";
 
 interface Translations {
@@ -129,13 +131,25 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
 }) => {
   const [currentLang, setCurrentLang] = useState<Language>("en");
-
+  useEffect(() => {
+    const initLanguage = async () => {
+      const value = await SecureStorage.getItem(SECURE_KEYS.APP_LANGUAGE);
+      if (value === "en" || value === "zh") {
+        setCurrentLang(value);
+      }
+    };
+    initLanguage();
+  }, []);
   const t = (key: string): string => {
     return translations[currentLang]?.[key] || key;
   };
 
   const toggleLanguage = (): void => {
-    setCurrentLang((prevLang) => (prevLang === "en" ? "zh" : "en"));
+    setCurrentLang((prevLang) => {
+      const newLang = prevLang === "en" ? "zh" : "en";
+      SecureStorage.setItem(SECURE_KEYS.APP_LANGUAGE, newLang);
+      return newLang;
+    });
   };
 
   const value: LanguageContextType = {

@@ -12,8 +12,6 @@ interface SecureDataState {
   isLoading: boolean;
   saveInitialData: (salt: string, encryptedCreds: string) => Promise<void>;
   loadInitialData: () => Promise<LoadedInitialData>;
-  // (可选) 手动触发初始化检查
-  //checkInitialization: () => Promise<void>;
 }
 
 export const useSecureData = create<SecureDataState>((set, get) => {

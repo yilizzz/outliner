@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useInfiniteFetchNews } from "../queries/news.queries";
 import { useLanguage } from "../contexts/language_context";
 import { useDebounce } from "use-debounce";
+import ScrollToTopButton from "../components/ui/scroll_to_top_button";
 import {
   Search,
   Delete,
@@ -24,7 +25,8 @@ const Dashboard = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteFetchNews(limit, currentLang, selectedCategory, debouncedSearch);
 
-  const newsItems = data?.pages?.flatMap((page: any) => page.data) || [];
+  const newsItems = data?.pages?.flatMap((page: any) => page.data);
+
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
@@ -58,18 +60,17 @@ const Dashboard = () => {
     // 阻尼效果：距离越大，拉动感越强
     const dampenedDistance = distance * 0.6;
     setPullDistance(dampenedDistance);
-
     // 防止默认滚动
-    if (distance > 0) {
-      e.preventDefault();
-    }
+    // if (distance > 0) {
+    //   e.preventDefault();
+    // }
   };
 
   const handleTouchEnd = async () => {
     setIsPulling(false);
 
-    // 如果上拉距离超过 60px，触发加载下一页
-    if (pullDistance > 60 && hasNextPage) {
+    // 如果上拉距离超过 20px，触发加载下一页
+    if (pullDistance > 20 && hasNextPage) {
       setRefreshing(true);
       await fetchNextPage();
       setRefreshing(false);
@@ -88,7 +89,6 @@ const Dashboard = () => {
       passive: false,
     });
     container.addEventListener("touchend", handleTouchEnd as any, false);
-
     return () => {
       container.removeEventListener("touchstart", handleTouchStart as any);
       container.removeEventListener("touchmove", handleTouchMove as any);
@@ -96,7 +96,7 @@ const Dashboard = () => {
     };
   }, [isPulling, pullDistance, refreshing, hasNextPage, fetchNextPage]);
 
-  if (isLoading && newsItems.length === 0) {
+  if (isLoading && newsItems?.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         <LoaderPinwheel className="animate-spin text-dark-blue" size={48} />
@@ -158,8 +158,8 @@ const Dashboard = () => {
 
       {/* 两列卡片网格 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
-        {newsItems.map((item: any, index: number) => (
-          <div className="relative" key={item.id}>
+        {newsItems?.map((item, index) => (
+          <div className="relative" key={item.url}>
             <div
               className="absolute inset-0 bg-gray-300 opacity-40"
               style={{
@@ -169,7 +169,6 @@ const Dashboard = () => {
               }}
             />
             <div
-              key={index}
               className="rounded-lg shadow-md hover:shadow-lg overflow-hidden flex flex-col transition-all duration-1000 "
               style={{
                 backgroundColor: bgColor,
@@ -178,7 +177,7 @@ const Dashboard = () => {
               }}
             >
               {/* 卡片内容容器 */}
-              <div className="p-4 flex flex-col h-full">
+              <div className="px-4 py-6 flex flex-col h-full">
                 {/* 标题 */}
                 <h3 className="text-lg font-bold text-dark-blue mb-2">
                   {item.title}
@@ -199,9 +198,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* 摘要 */}
-                <p className="text-gray-600 text-sm mb-3 flex-grow">
-                  {item.summary}
-                </p>
+                <p className="text-gray-600 text-sm mb-3">{item.summary}</p>
 
                 {/* 灵感/亮点 */}
                 {item.inspiration && (
@@ -220,7 +217,7 @@ const Dashboard = () => {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-dark-green  text-sm font-semibold mt-auto break-all"
+                      className="text-dark-green text-sm font-semibold mt-auto"
                     >
                       <span className="flex">
                         <Eye size={24} />
@@ -251,6 +248,7 @@ const Dashboard = () => {
           )}
         </button>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };

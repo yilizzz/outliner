@@ -8,7 +8,6 @@ import { ChapterEditOrAddModal } from "./chapter_edit_or_add_modal";
 import { ConfirmDialog } from "./confirm_dialog";
 import { useLanguage } from "../contexts/language_context";
 import { Button } from "./ui/button";
-
 import { Pencil, Trash2, GripVertical } from "lucide-react";
 // 单个章节项（可排序）
 export const SortableChapterItem = ({
@@ -49,7 +48,7 @@ export const SortableChapterItem = ({
         {...attributes}
         {...listeners}
       >
-        <button className="cursor-grab active:cursor-grabbing text-dark-blue p-2 touch-none">
+        <button className=" text-dark-blue p-2 touch-none">
           <GripVertical size={20} />
         </button>
 
@@ -63,8 +62,6 @@ export const SortableChapterItem = ({
         </div>
 
         <div className="flex gap-1">
-          {" "}
-          {/* 稍微缩小按钮间距 */}
           <Button
             size="sm"
             variant="ghost"

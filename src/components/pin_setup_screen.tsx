@@ -215,7 +215,7 @@ const PinSetupScreen: React.FC = () => {
           {({ errors, touched }) => (
             <Form className="w-full flex flex-col justify-start items-start gap-4">
               <div className="w-full flex flex-col justify-start items-start gap-1.5">
-                <label htmlFor="pin" className="text-dark-blue">
+                <label htmlFor="pin" className="text-dark-blue text-sm">
                   Pin
                 </label>
                 <Field
@@ -229,7 +229,7 @@ const PinSetupScreen: React.FC = () => {
                 ) : null}
               </div>
               <div className="w-full flex flex-col justify-start items-start gap-1.5">
-                <label htmlFor="confirmPin" className="text-dark-blue">
+                <label htmlFor="confirmPin" className="text-dark-blue text-sm">
                   {t("confirm_pin")}
                 </label>
                 <Field

@@ -5,6 +5,7 @@ export const SECURE_KEYS = {
   PIN_ITERATIONS: "pin_iterations",
   ENC_CREDS: "enc_creds",
   IS_INITIALIZED: "initialized",
+  APP_LANGUAGE: "app_language",
 } as const;
 
 export const AUTH_STORAGE_KEY = "app_auth_v1";
