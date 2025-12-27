@@ -27,7 +27,7 @@ export const Visualizing: React.FC<TreeProps> = ({
   if (isLoading) {
     return (
       <div style={{ width: baseSize, height: baseSize }}>
-        <LoaderPinwheel />
+        <LoaderPinwheel className="animate-spin" />
       </div>
     );
   }

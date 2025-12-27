@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 import {
   lightColors,
   darkColors,
-  getRandomColors,
+  getRandomColor,
 } from "../../utils/color_utils";
 import { makeRotatable } from "../../utils/make_rotatable";
 export const Lotus = ({
@@ -58,7 +58,7 @@ export const Lotus = ({
     // 3. 绘制花蕊
     g.append("circle")
       .attr("r", radius * 0.09)
-      .attr("fill", getRandomColors(darkColors, 1)[0])
+      .attr("fill", getRandomColor(darkColors))
       .attr("opacity", 0.9)
       .style("filter", "drop-shadow(0 0 5px white)");
 

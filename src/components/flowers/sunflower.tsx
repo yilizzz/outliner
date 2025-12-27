@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { useRef, useEffect } from "react";
 import { makeRotatable } from "../../utils/make_rotatable";
 import {
-  getRandomColors,
+  getRandomColor,
   darkColors,
   lightColors,
 } from "../../utils/color_utils";
@@ -18,8 +18,8 @@ export const Sunflower = ({
   // 核心参数配置
   const config = {
     padding: 20, // 留白
-    baseColor: getRandomColors(darkColors, 1)[0],
-    centerColor: getRandomColors(lightColors, 1)[0],
+    baseColor: getRandomColor(darkColors),
+    centerColor: getRandomColor(lightColors),
   };
 
   useEffect(() => {

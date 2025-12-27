@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { makeRotatable } from "../../utils/make_rotatable";
 import {
-  getRandomColors,
+  getRandomColor,
   darkColors,
   lightColors,
 } from "../../utils/color_utils";
@@ -32,7 +32,7 @@ export const Dandelion = ({
         (0.6 + Math.random() * 0.4);
       const x = r * Math.cos((angle * Math.PI) / 180);
       const y = r * Math.sin((angle * Math.PI) / 180);
-      const color = getRandomColors(darkColors, 1)[0];
+      const color = getRandomColor(darkColors);
       return { x, y, i, color };
     });
     // center dot
@@ -73,9 +73,7 @@ export const Dandelion = ({
       .attr("cy", 0)
       .attr("r", 0)
       .attr("fill", (d: any, i: number) =>
-        i % 2 === 0
-          ? getRandomColors(darkColors, 1)[0]
-          : getRandomColors(lightColors, 1)[0]
+        i % 2 === 0 ? getRandomColor(darkColors) : getRandomColor(lightColors)
       )
       .attr("stroke", "#ffffff")
       .attr("stroke-width", 1)

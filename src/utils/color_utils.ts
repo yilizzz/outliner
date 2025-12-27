@@ -9,10 +9,10 @@ export const lightColors = [
   "#ABC3F0", // 浅蓝
   "#E0EEE8", // 浅绿
 ];
-export const getRandomColors = (
-  collection: string[],
-  num: number
-): string[] => {
-  const shuffled = [...collection].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, num);
+export const getRandomColor = (collection: string[]): string => {
+  if (collection.length === 0) {
+    throw new Error("Color collection is empty");
+  }
+  const randomIndex = Math.floor(Math.random() * collection.length);
+  return collection[randomIndex];
 };

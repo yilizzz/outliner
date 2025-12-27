@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Loader, Pencil, DiamondPlus } from "lucide-react";
+import { Trash2, Pencil, DiamondPlus, LoaderPinwheel } from "lucide-react";
 import {
   useFetchUserProjects,
   useCreateProject,
@@ -12,11 +12,12 @@ import { useAuthStore } from "../stores/auth_store";
 import Input from "../components/ui/input";
 import { ConfirmDialog } from "../components/confirm_dialog";
 import { ErrorLine } from "../components/ui/error_line";
+import { Loader } from "../components/ui/loader";
 const Projects: React.FC = ({}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { userId } = useAuthStore();
-  const { data: projects = [] } = useFetchUserProjects(userId);
+  const { data: projects = [], isLoading } = useFetchUserProjects(userId);
   const createProjectMutation = useCreateProject(userId);
   const deleteProjectMutation = useDeleteProject(userId);
   const [error, setError] = useState("");
@@ -65,7 +66,9 @@ const Projects: React.FC = ({}) => {
       setError(`${t("delete_failed")}`);
     }
   };
-
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto">
       {/* 新增项目表单 */}
@@ -86,7 +89,7 @@ const Projects: React.FC = ({}) => {
           disabled={isSubmitting || !newProjectTitle.trim()}
           className=" px-3 py-2 bg-dark-blue text-white rounded-lg  disabled:bg-gray-400 transition-colors font-semibold"
         >
-          {isSubmitting ? <Loader /> : <DiamondPlus />}
+          {isSubmitting ? <LoaderPinwheel /> : <DiamondPlus />}
         </button>
         {error && <ErrorLine>{error}</ErrorLine>}
       </form>

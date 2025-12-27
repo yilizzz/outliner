@@ -6,6 +6,7 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
+  TouchSensor,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -19,7 +20,8 @@ import { useFetchChaptersByProjectId } from "../queries/chapter.queries";
 import { useUpdateChapterOrder } from "../queries/chapter.queries";
 import { useState } from "react";
 import { SortableChapterItem } from "./sortable_chapter_item";
-import { GripVertical, Loader } from "lucide-react";
+import { GripVertical } from "lucide-react";
+import { Loader } from "../components/ui/loader";
 // 拖拽中的占位预览（可选）
 const DragOverlayItem = ({
   chapter,
@@ -55,8 +57,9 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     useSensor(PointerSensor, {
       activationConstraint: { distance: 4 },
     }),
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 4 },
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+      onActivation: () => window.alert("Touch activated!"), // 调试用
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -64,11 +67,12 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
   );
 
   const handleDragStart = (event: any) => {
+    console.log("🎯 Drag started!", event.active.id);
     setActiveId(event.active.id);
-    console.log("drag-start", event.active.id);
   };
 
   const handleDragEnd = (event: any) => {
+    console.log("✅ Drag ended!");
     setActiveId(null);
     const { active, over } = event;
 
@@ -96,12 +100,7 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     updateOrder(updates);
   };
 
-  if (isLoading && chapters.length === 0)
-    return (
-      <div>
-        <Loader className="mr-2 h-4 w-4 animate-spin" />
-      </div>
-    );
+  if (isLoading && chapters.length === 0) return <Loader />;
 
   return (
     <DndContext
@@ -109,20 +108,19 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragCancel={() => console.log("❌ Drag cancelled")}
     >
       <SortableContext
         items={chapters.map((ch) => ch.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-2">
-          {chapters.map((chapter) => (
-            <SortableChapterItem
-              key={chapter.id}
-              chapter={chapter}
-              projectId={projectId}
-            />
-          ))}
-        </div>
+        {chapters.map((chapter) => (
+          <SortableChapterItem
+            key={chapter.id}
+            chapter={chapter}
+            projectId={projectId}
+          />
+        ))}
       </SortableContext>
 
       <DragOverlay>

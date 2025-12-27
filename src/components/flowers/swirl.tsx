@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { makeRotatable } from "../../utils/make_rotatable";
 import {
-  getRandomColors,
+  getRandomColor,
   darkColors,
   lightColors,
 } from "../../utils/color_utils";
@@ -28,9 +28,9 @@ export const Swirl = ({
   // 配置参数（颜色与曲线因子）
   const config = {
     colors: {
-      start: getRandomColors(lightColors, 1)[0],
-      end: getRandomColors(darkColors, 1)[0],
-      core: getRandomColors(lightColors, 1)[0],
+      start: getRandomColor(lightColors),
+      end: getRandomColor(darkColors),
+      core: getRandomColor(lightColors),
     },
     radiusVariation: 0.35,
     curveOffset: 1.3,

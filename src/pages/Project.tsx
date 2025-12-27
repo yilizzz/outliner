@@ -11,10 +11,10 @@ import { ChapterList } from "../components/chapter_list";
 import { useUpdateProject } from "../queries/projects.queries";
 import { DiamondPlus, Save, Pencil, Bug } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Loader } from "lucide-react";
 import { useLanguage } from "../contexts/language_context";
 import Input from "../components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import { Loader } from "../components/ui/loader";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: project, isLoading: isProjectLoading } =
@@ -51,24 +51,18 @@ const Project: React.FC = () => {
   const handleSave = async () => {
     if (!title.trim()) {
       setError(t("title_empty_error"));
-      // 手机端震动反馈 (如果有 Capacitor Haptics 插件)
-      // Haptics.impact({ style: ImpactStyle.Light });
       return;
     }
 
     try {
       await updateProject({ id: project?.id, title: title.trim() });
-      setIsEditing(false); // 动画会触发 exit={{ width: 0 }}
+      setIsEditing(false);
     } catch (e) {
       setError(t("save_failed"));
     }
   };
   if (isProjectLoading || isChaptersLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader className="mr-2 h-4 w-4 animate-spin" />
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!slug || !project)

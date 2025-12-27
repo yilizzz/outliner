@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import {
   lightColors,
   darkColors,
-  getRandomColors,
+  getRandomColor,
 } from "../../utils/color_utils";
 import { makeRotatable } from "../../utils/make_rotatable";
 import {
@@ -41,8 +41,8 @@ export const Ray = ({
       maxAllowedRadius
     );
   };
-  const stamentsColor = getRandomColors(lightColors, 1)[0];
-  const lineColor = getRandomColors(darkColors, 1)[0];
+  const stamentsColor = getRandomColor(lightColors);
+  const lineColor = getRandomColor(darkColors);
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);

@@ -31,28 +31,39 @@ export const SortableChapterItem = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { t } = useLanguage();
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 100 : "auto",
+    touchAction: "none",
   };
   const preview = (chapter.content || "").slice(0, 10);
 
+  // 阻止按钮区域触发拖拽
+  const stopDragPropagation = (e: React.MouseEvent | React.TouchEvent) => {
+    console.log("🛑 Button touch blocked");
+    e.stopPropagation();
+  };
+  const handleTouchStartDebug = (e: React.TouchEvent) => {
+    console.log("👆 Touch detected on div:", chapter.title);
+  };
   return (
     <>
       <div
         ref={setNodeRef}
         style={style}
-        className="flex items-center gap-3 p-2 px-3 rounded-lg bg-light-green shadow-md mb-2 touch-manipulation h-16" // 显式设置高度 h-16
+        className="flex items-center gap-3 p-2 px-3 rounded-lg bg-light-green shadow-md mb-2 h-16"
         {...attributes}
         {...listeners}
+        onTouchStart={handleTouchStartDebug}
       >
-        <button className=" text-dark-blue p-2 touch-none">
+        <div className="text-dark-blue p-2">
           <GripVertical size={20} />
-        </button>
+        </div>
 
-        <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden pointer-events-none">
           <h3 className="font-medium text-dark-blue truncate leading-tight">
             {chapter.title}
           </h3>
@@ -61,7 +72,13 @@ export const SortableChapterItem = ({
           </p>
         </div>
 
-        <div className="flex gap-1">
+        {/* 关键：阻止按钮区域的所有拖拽相关事件 */}
+        <div
+          className="flex gap-1 pointer-events-auto"
+          onMouseDown={stopDragPropagation}
+          onTouchStart={stopDragPropagation}
+          onPointerDown={stopDragPropagation}
+        >
           <Button
             size="sm"
             variant="ghost"

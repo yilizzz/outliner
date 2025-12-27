@@ -16,7 +16,7 @@ import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
 import { useCreateChapter } from "../queries/chapter.queries";
-import { Loader } from "lucide-react";
+import { Loader } from "../components/ui/loader";
 import { ErrorLine } from "./ui/error_line";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
@@ -250,11 +250,7 @@ const PinSetupScreen: React.FC = () => {
             </Form>
           )}
         </Formik>
-        {isProcessing ? (
-          <Loader className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <></>
-        )}
+        {isProcessing ? <Loader className="h-4" /> : <></>}
       </div>
     </div>
   );
