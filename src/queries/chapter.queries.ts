@@ -82,7 +82,6 @@ export const useUpdateChapterOrder = (projectId: string) => {
       return { previous };
     },
     onError: (err, vars, context) => {
-      console.error("Update order failed:", err);
       if (context?.previous) {
         queryClient.setQueryData(["chapters", projectId], context.previous);
       }

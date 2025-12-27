@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { useFetchProjectById } from "../queries/projects.queries";
 import { LoaderPinwheel } from "lucide-react";
@@ -7,52 +7,69 @@ import { Dandelion } from "./flowers/dandelion";
 import { Ray } from "./flowers/ray";
 import { Sunflower } from "./flowers/sunflower";
 import { Swirl } from "./flowers/swirl";
-import { useInView } from "../hooks/use_in_view";
+import { useInView } from "react-intersection-observer";
 interface TreeProps {
   project_id: string;
-  forceRender?: boolean;
 }
-export const Visualizing: React.FC<TreeProps> = ({
-  project_id,
-  forceRender = false,
-}) => {
+export const Visualizing: React.FC<TreeProps> = ({ project_id }) => {
   const { data: project, isLoading } = useFetchProjectById(project_id);
 
-  //const project = { chapters: new Array(5).fill(0) };
-
   const baseSize = 280;
-
   const chapterCount = project?.chapters?.length || 0;
-  const [containerRef, isInView] = useInView();
+
+  const { ref: containerRef, inView } = useInView({
+    triggerOnce: true, // 如果只需要加载一次，可以设为 true 提升性能
+    rootMargin: "-300px 0px",
+  });
+
+  // 只有当 project_id 改变或 chapterCount 改变时才重新计算
+  const selectedComponent = useMemo(() => {
+    if (chapterCount === 0) return null;
+
+    const components = [
+      <Sunflower key="sunflower" count={chapterCount} baseSize={baseSize} />,
+      <Dandelion key="dandelion" count={chapterCount} baseSize={baseSize} />,
+      <Ray key="ray" count={chapterCount} baseSize={baseSize} />,
+      <Lotus key="lotus" count={chapterCount} baseSize={baseSize} />,
+      <Swirl key="swirl" count={chapterCount} baseSize={baseSize} />,
+    ];
+
+    const randomIndex = Math.floor(Math.random() * components.length);
+    return components[randomIndex];
+  }, [chapterCount, project_id]); // 加上 project_id 确保不同项目的形状不同
+
   if (isLoading) {
     return (
-      <div style={{ width: baseSize, height: baseSize }}>
-        <LoaderPinwheel className="animate-spin" />
+      <div
+        className="flex items-center justify-center"
+        style={{ width: baseSize, height: baseSize }}
+      >
+        <LoaderPinwheel className="animate-spin text-gray-400" />
       </div>
     );
   }
-  const components = [
-    <Sunflower key="sunflower" count={chapterCount} baseSize={baseSize} />,
-    <Dandelion key="dandelion" count={chapterCount} baseSize={baseSize} />,
-    <Ray key="ray" count={chapterCount} baseSize={baseSize} />,
-    <Lotus key="lotus" count={chapterCount} baseSize={baseSize} />,
-    <Swirl key="swirl" count={chapterCount} baseSize={baseSize} />,
-  ];
 
-  // 随机选择一个组件
-  const randomIndex = Math.floor(Math.random() * components.length);
-  //const randomIndex = 3;
-  const selectedComponent = components[randomIndex];
   return (
     <div className="flex flex-col items-center justify-center">
       {chapterCount === 0 ? (
-        <div className="h-6"></div>
+        <div className="h-6" />
       ) : (
-        <div ref={containerRef} style={{ width: baseSize, height: baseSize }}>
-          {forceRender || isInView ? (
+        /*  将 ref 挂载在包装层上 */
+        <div
+          ref={containerRef}
+          style={{
+            width: baseSize,
+            height: baseSize,
+          }}
+        >
+          {inView ? (
             selectedComponent
           ) : (
-            <div style={{ width: "100%", height: "100%" }} />
+            /* 占位符：保持高度一致，防止滚动条抖动 */
+            <div
+              style={{ width: baseSize, height: baseSize }}
+              className="bg-transparent"
+            />
           )}
         </div>
       )}

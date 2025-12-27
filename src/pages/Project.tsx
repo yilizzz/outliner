@@ -15,6 +15,7 @@ import { useLanguage } from "../contexts/language_context";
 import Input from "../components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "../components/ui/loader";
+import { ErrorLine } from "../components/ui/error_line";
 const Project: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: project, isLoading: isProjectLoading } =
@@ -117,11 +118,11 @@ const Project: React.FC = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="flex-1 text-lg font-bold truncate text-dark-blue min-w-0 mr-4">
+                <div className="flex-1 text-base font-semibold truncate text-dark-blue min-w-0 mr-4">
                   {title}
                 </div>
                 <Button
-                  className="flex-shrink-0"
+                  className="shrink-0"
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
@@ -132,20 +133,20 @@ const Project: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
-        {error && (
-          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
-            <Bug /> {error}
+        {error && <ErrorLine>{error}</ErrorLine>}
+      </div>
+      <div className="relative mb-16">
+        <ChapterList projectId={slug} />
+        {chapters?.length > 99 ? (
+          <div className="box">{t("chapters_limit")}</div>
+        ) : (
+          <div className="absolute -bottom-12 right-0 z-10">
+            <Button size="icon" onClick={() => setIsAddModalOpen(true)}>
+              <DiamondPlus size={24} />
+            </Button>
           </div>
         )}
       </div>
-      <ChapterList projectId={slug} />
-
-      <div className="fixed right-4 z-10">
-        <Button size="icon" onClick={() => setIsAddModalOpen(true)}>
-          <DiamondPlus size={24} />
-        </Button>
-      </div>
-
       <ChapterEditOrAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}

@@ -11,6 +11,7 @@ import { getRandomColor, lightColors } from "../utils/color_utils";
 import { generateTornEdge } from "../utils/torn_edge";
 import Input from "../components/ui/input";
 import { NewsItem } from "../components/news_item";
+import { Button } from "../components/ui/button";
 const Dashboard = () => {
   const { t, currentLang } = useLanguage();
   const limit = 6;
@@ -29,7 +30,6 @@ const Dashboard = () => {
     }),
     [getRandomColor, generateTornEdge]
   );
-  console.log(itemStyles);
   // 2. 虚拟列表配置（单列动态高度版）
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? newsItems.length + 1 : newsItems.length,
@@ -69,7 +69,7 @@ const Dashboard = () => {
                   : [...prev, category]
               );
             }}
-            className={`px-3 py-1 rounded-lg font-medium transition-colors flex items-center justify-center ${
+            className={`px-3 py-1 rounded-lg font-normal text-sm transition-colors flex items-center justify-center ${
               selectedCategory.includes(category)
                 ? "bg-dark-blue text-white"
                 : "bg-gray-200 text-dark-blue"
@@ -141,10 +141,9 @@ const Dashboard = () => {
       </div>
       {/* 加载更多按钮 */}
       <div className="flex justify-center gap-4 mt-8 mb-8">
-        <button
+        <Button
           onClick={() => fetchNextPage()}
           disabled={!hasNextPage || isFetchingNextPage}
-          className="px-4 py-2 bg-dark-blue text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isFetchingNextPage ? (
             <LoaderPinwheel className="animate-spin" />
@@ -153,7 +152,7 @@ const Dashboard = () => {
           ) : (
             t("no_more")
           )}
-        </button>
+        </Button>
       </div>
       <ScrollToTopButton />
     </div>

@@ -34,3 +34,15 @@ body {
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+.box {
+  color: #2e4e7e;
+  display: inline-block;
+  width: 100%;
+  margin: 5% auto;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  border: solid 5px #2e4e7e;
+  padding: 1em;
+  background: #e9e7ef;
+  font-size: 14px;
+}

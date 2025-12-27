@@ -13,6 +13,7 @@ import Input from "../components/ui/input";
 import { ConfirmDialog } from "../components/confirm_dialog";
 import { ErrorLine } from "../components/ui/error_line";
 import { Loader } from "../components/ui/loader";
+import { Button } from "../components/ui/button";
 const Projects: React.FC = ({}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -62,7 +63,6 @@ const Projects: React.FC = ({}) => {
       await deleteProjectMutation.mutateAsync(deleteProjectId);
       setDeleteProjectId(null);
     } catch (e) {
-      console.error("delete project error", e);
       setError(`${t("delete_failed")}`);
     }
   };
@@ -70,33 +70,36 @@ const Projects: React.FC = ({}) => {
     return <Loader />;
   }
   return (
-    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto">
-      {/* 新增项目表单 */}
-      <form
-        onSubmit={handleCreateProject}
-        className="mb-6 pb-6 border-b border-dark-blue flex justify-between items-center gap-2 flex-nowrap"
-      >
-        <Input
-          name="title"
-          type="text"
-          value={newProjectTitle}
-          onChange={(e) => setNewProjectTitle(e.target.value)}
-          placeholder={t("placeholder_work_title")}
-          disabled={isSubmitting}
-        />
-        <button
-          type="submit"
-          disabled={isSubmitting || !newProjectTitle.trim()}
-          className=" px-3 py-2 bg-dark-blue text-white rounded-lg  disabled:bg-gray-400 transition-colors font-semibold"
+    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto flex flex-col gap-4 border-b border-dark-blue">
+      {projects.length > 9 ? (
+        <div className="box">{t("works_limit")}</div>
+      ) : (
+        <form
+          onSubmit={handleCreateProject}
+          className="flex justify-between items-center gap-2 flex-nowrap pb-6 border-b border-light-blue"
         >
-          {isSubmitting ? <LoaderPinwheel /> : <DiamondPlus />}
-        </button>
-        {error && <ErrorLine>{error}</ErrorLine>}
-      </form>
+          <Input
+            name="title"
+            type="text"
+            value={newProjectTitle}
+            onChange={(e) => setNewProjectTitle(e.target.value)}
+            placeholder={t("placeholder_work_title")}
+            disabled={isSubmitting}
+          />
+          <Button
+            type="submit"
+            disabled={isSubmitting || !newProjectTitle.trim()}
+          >
+            {isSubmitting ? <LoaderPinwheel /> : <DiamondPlus />}
+          </Button>
+          {error && <ErrorLine>{error}</ErrorLine>}
+        </form>
+      )}
 
-      {/* 项目列表 */}
-      <div className="space-y-2">
-        <h3 className="font-semibold text-dark-blue mb-4">{t("my_works")}</h3>
+      <div className="space-y-2 mb-16">
+        <h3 className="text-base font-semibold text-dark-blue mb-4">
+          {t("my_works")}
+        </h3>
         {projects.length === 0 ? (
           <p className="text-gray-500 text-center py-4">{t("work_empty")}</p>
         ) : (
@@ -107,28 +110,32 @@ const Projects: React.FC = ({}) => {
                 className="flex flex-col items-center justify-between p-3 "
               >
                 <div className="w-full flex items-center justify-between flex-nowrap">
-                  <p className="font-medium text-dark-blue truncate">
+                  <p className="text-sm font-normal text-dark-blue truncate">
                     {project.title}
                   </p>
 
-                  <div className="flex items-center gap-3 ml-2">
+                  <div className="flex items-center gap-2 ml-2">
                     <p className="text-xs text-gray-500">
                       {new Date(project.date_created).toLocaleDateString(
                         "zh-CN"
                       )}
                     </p>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleNavigateToProject(project.id)}
                       className=" text-dark-blue"
                     >
                       <Pencil size={18} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setDeleteProjectId(project.id)}
                       className=" text-dark-red"
                     >
                       <Trash2 size={18} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="w-full">

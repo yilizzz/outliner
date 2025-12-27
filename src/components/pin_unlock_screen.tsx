@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
 import { LockKeyhole, Bug } from "lucide-react";
+import { ErrorLine } from "./ui/error_line";
 const MAX_PIN_LENGTH = 4;
 import Input from "./ui/input";
 const PinUnlockScreen: React.FC = () => {
@@ -107,9 +108,6 @@ const PinUnlockScreen: React.FC = () => {
         loginWithAuth(auth);
         navigate("/dashboard");
       } catch (e: any) {
-        // 5. 精细化错误分发
-        console.error("Unlock error:", e);
-
         switch (e.message) {
           case "DATA_LOST":
             setError(t("error_data_lost")); // 提示数据丢失，建议重新登录
@@ -143,11 +141,7 @@ const PinUnlockScreen: React.FC = () => {
 
         <p className="text-gray-500 mb-6">{t("unlock")}</p>
 
-        {error && (
-          <div className="p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center">
-            <Bug /> {error}
-          </div>
-        )}
+        {error && <ErrorLine>{error}</ErrorLine>}
 
         <Input
           name="pin"

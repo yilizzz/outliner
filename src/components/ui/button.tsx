@@ -25,7 +25,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center rounded-lg font-medium transition-all focus:outline-none disabled:opacity-50 disabled:pointer-events-none active:scale-95 touch-manipulation";
+      "inline-flex items-center justify-center rounded-lg font-normal text-sm transition-all focus:outline-none disabled:opacity-50 disabled:pointer-events-none active:scale-95 touch-manipulation";
 
     const variants = {
       primary: "bg-dark-blue text-white ",

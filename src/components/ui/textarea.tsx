@@ -33,7 +33,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       >
         {label && (
           <label
-            className={`tracking-wider ml-0.5 ${theme.label} uppercase text-sm`}
+            className={`tracking-wider ml-0.5 ${theme.label} uppercase text-sm font-light`}
           >
             {label}
           </label>

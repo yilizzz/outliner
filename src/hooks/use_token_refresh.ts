@@ -32,12 +32,8 @@ export const useTokenRefresh = () => {
     try {
       if (isRefreshingRef.current) return false;
       isRefreshingRef.current = true;
-      console.log(
-        "Access Token 已过期或临近过期，尝试使用 Refresh Token 刷新..."
-      );
 
       if (!auth.refresh_token) {
-        console.error("缺少 Refresh Token，无法自动刷新。");
         logout();
         isRefreshingRef.current = false;
         return false;
@@ -62,15 +58,11 @@ export const useTokenRefresh = () => {
         refresh_token: data.data.refresh_token,
         expires: expiresAbsolute(data.data.expires),
       };
-
-      console.log("新 Auth Response:", newAuthResponse);
       refreshToken(newAuthResponse);
-      console.log("Token 刷新成功！", Date());
 
       isRefreshingRef.current = false;
       return true;
     } catch (error) {
-      console.error("Token 刷新失败，需要重新 PIN 验证：", error);
       logout();
       isRefreshingRef.current = false;
       return false;

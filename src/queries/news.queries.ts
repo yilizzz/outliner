@@ -65,22 +65,7 @@ const fetchNews = async ({
     offset,
     ...(Object.keys(filter).length > 0 ? { filter } : null),
   };
-  let raw;
-  try {
-    raw = await directus.request(readItems("tech_news", queryConfig));
-  } catch (err: any) {
-    try {
-      console.error("Directus fetchNews error:", {
-        message: err?.message,
-        status: err?.response?.status || err?.status || null,
-        data: err?.response?.data || null,
-        queryConfig,
-      });
-    } catch (e) {
-      console.error("Directus fetchNews unknown error", err);
-    }
-    throw err;
-  }
+  const raw = await directus.request(readItems("tech_news", queryConfig));
   const mapped = (raw || []).map((it: any) => ({
     url: it.url,
     title: lang === "en" ? it.title : it.title_zh || it.title,

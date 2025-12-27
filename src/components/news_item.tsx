@@ -44,12 +44,12 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
         {/* 卡片内容容器 */}
         <div className="px-4 py-6 flex flex-col h-full">
           {/* 标题 */}
-          <h3 className="text-lg font-bold text-dark-blue mb-2">
+          <h3 className="text-base font-semibold text-dark-blue mb-2">
             {item.title}
           </h3>
 
           {/* 分类和发布时间 */}
-          <div className="flex items-center gap-3 mb-3 text-sm text-gray-500">
+          <div className="flex items-center gap-3 mb-3 text-sm font-light text-gray-500">
             {item.category && (
               <span className="px-2 py-1 bg-dark-blue text-white rounded-lg">
                 {item.category}
@@ -59,7 +59,9 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
           </div>
 
           {/* 摘要 */}
-          <p className="text-gray-600 text-sm mb-3">{item.summary}</p>
+          <p className="text-gray-600 text-sm font-light mb-3">
+            {item.summary}
+          </p>
 
           {/* 灵感/亮点 */}
           {item.inspiration && (
@@ -67,7 +69,9 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
               <p className="text-xs font-semibold text-amber-900 mb-1">
                 {inspirationIcons[0]}
               </p>
-              <p className="text-sm text-dark-blue">{item.inspiration}</p>
+              <p className="text-sm font-light text-dark-blue">
+                {item.inspiration}
+              </p>
             </div>
           )}
 
@@ -78,7 +82,7 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-dark-green text-sm font-semibold mt-auto"
+                className="text-dark-green text-sm mt-auto"
               >
                 <span className="flex">
                   <Eye size={24} />

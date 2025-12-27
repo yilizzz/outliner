@@ -35,7 +35,7 @@ const DragOverlayItem = ({
         <GripVertical />
       </span>
       <div>
-        <h3 className="font-medium text-dark-blue truncate leading-tight">
+        <h3 className="font-normal text-sm text-dark-blue truncate leading-tight">
           {chapter.title}
         </h3>
       </div>
@@ -67,12 +67,10 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
   );
 
   const handleDragStart = (event: any) => {
-    console.log("🎯 Drag started!", event.active.id);
     setActiveId(event.active.id);
   };
 
   const handleDragEnd = (event: any) => {
-    console.log("✅ Drag ended!");
     setActiveId(null);
     const { active, over } = event;
 
@@ -108,7 +106,6 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => console.log("❌ Drag cancelled")}
     >
       <SortableContext
         items={chapters.map((ch) => ch.id)}

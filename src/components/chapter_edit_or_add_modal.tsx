@@ -46,7 +46,7 @@ export const ChapterEditOrAddModal = ({
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-2xl z-[101] focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in data-[state=closed]:fade-out duration-200">
           {/* 头部 */}
           <div className="px-6 py-4 border-b border-dark-blue flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-            <Dialog.Title className="text-lg font-bold text-dark-blue">
+            <Dialog.Title className="text-base font-semibold text-dark-blue">
               {initialData
                 ? t("chapter_modal_title_edit")
                 : t("chapter_modal_title_add")}

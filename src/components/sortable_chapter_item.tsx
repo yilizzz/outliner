@@ -37,34 +37,22 @@ export const SortableChapterItem = ({
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 100 : "auto",
-    touchAction: "none",
   };
-  const preview = (chapter.content || "").slice(0, 10);
+  const preview = (chapter.content || "").slice(0, 20);
 
   // 阻止按钮区域触发拖拽
   const stopDragPropagation = (e: React.MouseEvent | React.TouchEvent) => {
-    console.log("🛑 Button touch blocked");
     e.stopPropagation();
-  };
-  const handleTouchStartDebug = (e: React.TouchEvent) => {
-    console.log("👆 Touch detected on div:", chapter.title);
   };
   return (
     <>
       <div
         ref={setNodeRef}
         style={style}
-        className="flex items-center gap-3 p-2 px-3 rounded-lg bg-light-green shadow-md mb-2 h-16"
-        {...attributes}
-        {...listeners}
-        onTouchStart={handleTouchStartDebug}
+        className="flex items-center gap-3 p-2 rounded-lg bg-light-green shadow-md mb-2 h-12"
       >
-        <div className="text-dark-blue p-2">
-          <GripVertical size={20} />
-        </div>
-
         <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden pointer-events-none">
-          <h3 className="font-medium text-dark-blue truncate leading-tight">
+          <h3 className="font-normal text-sm text-dark-blue truncate leading-tight">
             {chapter.title}
           </h3>
           <p className="text-xs text-dark-blue/60 truncate leading-tight mt-0.5">
@@ -73,25 +61,36 @@ export const SortableChapterItem = ({
         </div>
 
         {/* 关键：阻止按钮区域的所有拖拽相关事件 */}
-        <div
-          className="flex gap-1 pointer-events-auto"
-          onMouseDown={stopDragPropagation}
-          onTouchStart={stopDragPropagation}
-          onPointerDown={stopDragPropagation}
-        >
+        <div className="flex gap-2 justify-center items-center">
+          <div
+            className="flex gap-2 pointer-events-auto"
+            onMouseDown={stopDragPropagation}
+            onTouchStart={stopDragPropagation}
+            onPointerDown={stopDragPropagation}
+          >
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setIsEditModalOpen(true)}
+            >
+              <Pencil size={16} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setIsDeleteConfirmOpen(true)}
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div>
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => setIsEditModalOpen(true)}
+            className="touch-none"
+            {...attributes}
+            {...listeners}
           >
-            <Pencil size={16} />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setIsDeleteConfirmOpen(true)}
-          >
-            <Trash2 size={16} />
+            <GripVertical size={20} />
           </Button>
         </div>
       </div>

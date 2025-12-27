@@ -138,9 +138,7 @@ const PinSetupScreen: React.FC = () => {
               { project, title: "3", sort: 3, content: "" },
             ])
           );
-        } catch (e) {
-          console.warn("Initial data creation partially failed", e);
-        }
+        } catch (e) {}
 
         // --- 阶段 5: 本地持久化存储 ---
         try {
@@ -160,8 +158,6 @@ const PinSetupScreen: React.FC = () => {
 
         navigate("/dashboard");
       } catch (e: any) {
-        console.error("Setup Error Details:", e);
-
         // 根据错误标识符映射多语言文案
         switch (e.message) {
           case "ENV_UNSUPPORTED":
@@ -200,7 +196,9 @@ const PinSetupScreen: React.FC = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
       <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-6">
-        <p className=" text-dark-blue text-center font-bold">{t("set_pin")}</p>
+        <p className=" text-dark-blue text-center text-base font-bold">
+          {t("set_pin")}
+        </p>
         {error && <ErrorLine>{error}</ErrorLine>}
         <Formik
           initialValues={{

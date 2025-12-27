@@ -8,7 +8,7 @@ export const ErrorLine = React.forwardRef<HTMLDivElement, ErrorLineProps>(
     return (
       <p
         ref={ref}
-        className="w-full p-3 mb-3 text-sm text-dark-red bg-light-red rounded-lg flex gap-2 items-center"
+        className={`w-full p-3 mb-3 text-sm font-light text-dark-red bg-light-red rounded-lg flex gap-2 items-center ${className}`}
         {...props}
       >
         <Bug className="shrink-0" size={16} />
