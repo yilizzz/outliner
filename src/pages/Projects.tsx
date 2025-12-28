@@ -70,7 +70,7 @@ const Projects: React.FC = ({}) => {
     return <Loader />;
   }
   return (
-    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto flex flex-col gap-4 border-b border-dark-blue">
+    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto flex flex-col gap-4 max-w-6xl mx-auto">
       {projects.length > 9 ? (
         <div className="box">{t("works_limit")}</div>
       ) : (

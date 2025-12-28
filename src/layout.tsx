@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import LanguageToggle from "./components/language_toggle";
 import { Link } from "react-router-dom";
-import { House, NotebookText } from "lucide-react";
+import { Bean, NotebookText } from "lucide-react";
 interface LayoutProps {
   children: ReactNode;
 }
@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <nav className="flex justify-around items-center py-4">
           <LanguageToggle />
           <Link to="/dashboard" className="text-dark-blue">
-            <House size={24} />
+            <Bean size={24} />
           </Link>
           <Link to="/projects" className="text-dark-blue">
             <NotebookText size={24} />

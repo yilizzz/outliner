@@ -49,9 +49,9 @@ export const SortableChapterItem = ({
       <div
         ref={setNodeRef}
         style={style}
-        className="flex items-center gap-3 p-2 rounded-lg bg-light-green shadow-md mb-2 h-12"
+        className="flex items-center gap-3 px-2 py-3 rounded-lg bg-light-green shadow-md mb-2 h-12"
       >
-        <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden pointer-events-none">
+        <div className="flex-1 min-w-0 px-2 flex flex-col justify-center overflow-hidden pointer-events-none">
           <h3 className="font-normal text-sm text-dark-blue truncate leading-tight">
             {chapter.title}
           </h3>

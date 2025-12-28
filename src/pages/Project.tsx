@@ -74,7 +74,7 @@ const Project: React.FC = () => {
     );
 
   return (
-    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto">
+    <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto max-w-6xl mx-auto">
       <div>
         <div className="flex items-center gap-2 mb-4 h-10 relative">
           <AnimatePresence mode="wait">
