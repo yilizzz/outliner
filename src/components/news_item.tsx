@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Bean, Haze, Sprout, Squirrel, Eye } from "lucide-react";
+import { Bean, Eye } from "lucide-react";
 interface NewsItemData {
   url: any;
   title: any;
@@ -22,7 +22,6 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
   const formattedDate = useMemo(() => {
     return new Date(item.published_at).toLocaleDateString("zh-CN");
   }, [item.published_at]);
-  const inspirationIcons = [<Bean />, <Haze />, <Squirrel />, <Sprout />];
   return (
     <div className="relative" key={item.url}>
       <div
@@ -47,11 +46,10 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
           <h3 className="text-base font-semibold text-dark-blue mb-2">
             {item.title}
           </h3>
-
           {/* 分类和发布时间 */}
           <div className="flex items-center gap-3 mb-3 text-sm font-light text-gray-500">
             {item.category && (
-              <span className="px-2 py-1 bg-dark-blue text-white rounded-lg">
+              <span className="px-3 py-1 bg-dark-blue text-white rounded-lg">
                 {item.category}
               </span>
             )}
@@ -66,8 +64,8 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
           {/* 灵感/亮点 */}
           {item.inspiration && (
             <div className="mb-3 p-2 bg-light-gray border-l-4 border-dark-red">
-              <p className="text-xs font-semibold text-amber-900 mb-1">
-                {inspirationIcons[0]}
+              <p className="text-xs font-semibold text-dark-red mb-1">
+                <Bean size={20} />
               </p>
               <p className="text-sm font-light text-dark-blue">
                 {item.inspiration}

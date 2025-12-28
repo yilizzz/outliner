@@ -18,6 +18,8 @@ import { useLanguage } from "../contexts/language_context";
 import { useCreateChapter } from "../queries/chapter.queries";
 import { Loader } from "../components/ui/loader";
 import { ErrorLine } from "./ui/error_line";
+import { Button } from "./ui/button";
+import { Bean } from "lucide-react";
 const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
   const { t, currentLang } = useLanguage();
@@ -196,7 +198,8 @@ const PinSetupScreen: React.FC = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 p-4">
       <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl flex flex-col justify-center items-center gap-6">
-        <p className=" text-dark-blue text-center text-base font-bold">
+        <Bean className="text-dark-blue" size={24} />
+        <p className=" text-dark-blue text-center text-sm font-bold">
           {t("set_pin")}
         </p>
         {error && <ErrorLine>{error}</ErrorLine>}
@@ -239,16 +242,25 @@ const PinSetupScreen: React.FC = () => {
                 {errors.confirmPin && touched.confirmPin ? (
                   <ErrorLine>{errors.confirmPin}</ErrorLine>
                 ) : null}
-                <div className="w-full text-center">
-                  <button type="submit" className="text-dark-blue">
-                    {t("submit")}
-                  </button>
-                </div>
               </div>
+              <div className="w-full text-center">
+                <Button
+                  type="submit"
+                  disabled={
+                    (errors.confirmPin && touched.confirmPin) ||
+                    (errors.pin && touched.pin) ||
+                    !touched.pin ||
+                    !touched.confirmPin ||
+                    isProcessing
+                  }
+                >
+                  {t("submit")}
+                </Button>
+              </div>
+              {isProcessing && <Loader className="h-4 animate-spin" />}
             </Form>
           )}
         </Formik>
-        {isProcessing ? <Loader className="h-4" /> : <></>}
       </div>
     </div>
   );

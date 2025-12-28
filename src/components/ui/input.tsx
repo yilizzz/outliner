@@ -20,7 +20,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // 基础样式
     const baseStyles =
-      "outline-none px-3 py-1 w-full rounded-lg border bg-gray-50 transition-all duration-150 ease-in-out placeholder:text-gray-300";
+      "outline-none px-3 py-1 text-sm w-full rounded-lg border bg-gray-50 transition-all duration-150 ease-in-out placeholder:text-gray-300";
 
     // 动态组合逻辑
     const statusStyles = isError

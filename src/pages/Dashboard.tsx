@@ -79,7 +79,7 @@ const Dashboard = () => {
           </button>
         ))}
         <div className="relative flex items-center justify-center gap-2">
-          <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-dark-green opacity-50">
+          <span className="absolute h-full left-2 top-['50%'] transform-['translateY(-50%)'] flex items-center justify-center text-dark-blue opacity-50">
             {searchKeyword ? null : <Search size={24} />}
           </span>
           <Input
