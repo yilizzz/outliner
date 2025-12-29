@@ -2,21 +2,21 @@
 
 > A full-stack creative tool that transforms real-world tech news into science fiction story seeds using AI.
 
-## Key Features
+## ⚡ Key Features
 
-### 🤖 AI-Powered Inspiration Engine
+### AI-Powered Inspiration Engine
 
 **Automated Content Curation**: Leverages GitHub Actions to trigger a daily backend sync, fetching the latest tech news via RSS.
 
 **Intelligent Synthesis**: Integrated with LLM APIs to analyze raw articles and extract "Sci-Fi Seeds"—unique plot hooks and speculative concepts based on real-world emerging tech.
 
-### ⚡ Frictionless Authentication
+### Frictionless Authentication
 
 **PIN-Code Login**: Replaced traditional email/password complexity with a lightweight PIN verification system, optimizing the user experience for mobile creators and PWA environments.
 
 **Secure Access**: Implemented stateless authentication logic to ensure security without compromising the "instant-access" feel of a creative tool.
 
-### 🎨 Advanced Interactive UI
+### Advanced Interactive UI
 
 **D3.js Data Visualization**: Developed a custom D3.js-powered chart to represent story structure. It provides a bird's-eye view of chapter distribution and narrative weight.
 
@@ -34,14 +34,14 @@ graph TD
 
     %% GitHub Actions (The Trigger)
     subgraph GitHub_Cloud [GitHub Cloud]
-        GA[GitHub Actions] -->|1. Scheduled Cron POST| CE
+        GA[GitHub Actions] -->|Scheduled Cron POST| CE
     end
 
     %% Backend Service
     subgraph Railway_Cloud [Railway: Directus & Node.js]
-        CE[Custom Endpoint: /rss-worker] -->|2. Scrape| RSS((External RSS))
-        CE -->|3. Analyze| AI[LLM / OpenAI API]
-        AI -->|4. Save| DB[(PostgreSQL)]
+        CE[Custom Endpoint: /rss-worker] -->|Grab| RSS((External RSS))
+        CE -->|Analyze| AI[LLM / OpenAI API]
+        AI -->|Save| DB[(PostgreSQL)]
 
         API[Directus REST API] <-->|Fetch News & Outlines| DB
     end
@@ -50,8 +50,9 @@ graph TD
     PWA <-->|Fetch Data| API
 
     %% Styles
-    style GitHub_Cloud fill:#fff3e0,stroke:#ff6f00
-    style Railway_Cloud fill:#e1f5fe,stroke:#01579b
+    style Client_Layer fill:#e0eee8,stroke:#6e8b74
+    style GitHub_Cloud fill:#fee3d5,stroke:#760001
+    style Railway_Cloud fill:#abc3f0,stroke:#2e4e7e
 ```
 
 ## 📈 Technical Stack Summary
