@@ -73,6 +73,7 @@ const translations: Translations = {
       "🏵️You have created 10 works. If you want to create more, please delete some works first.",
     chapters_limit:
       "🏵️You have created 100 chapters. If you want to create more, please delete some chapters first.",
+    title_empty_error: "The title cannot be empty.",
   },
   zh: {
     set_pin: "首次使用，请设置 PIN 码用于登录",
@@ -123,6 +124,7 @@ const translations: Translations = {
     works_limit: "🏵️您已创建 10 个作品。如果要创建更多作品，请先删除一些作品。",
     chapters_limit:
       "🏵️您已创建 100 个章节。如果要创建更多章节，请先删除一些章节。",
+    title_empty_error: "标题不能为空。",
   },
 };
 

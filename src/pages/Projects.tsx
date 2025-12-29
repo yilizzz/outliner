@@ -47,10 +47,10 @@ const Projects: React.FC = ({}) => {
         handleNavigateToProject(projectId);
       } else {
         setNewProjectTitle("");
-        setError(`${t("create_failed")}`);
+        setError(t("create_failed"));
       }
     } catch (e) {
-      setError(`${t("create_failed")}`);
+      setError(t("create_failed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +63,7 @@ const Projects: React.FC = ({}) => {
       await deleteProjectMutation.mutateAsync(deleteProjectId);
       setDeleteProjectId(null);
     } catch (e) {
-      setError(`${t("delete_failed")}`);
+      setError(t("delete_failed"));
     }
   };
   if (isLoading) {
@@ -139,7 +139,7 @@ const Projects: React.FC = ({}) => {
                   </div>
                 </div>
                 <div className="w-full">
-                  <Visualizing project_id={project.id} forceRender={true} />
+                  <Visualizing project_id={project.id} />
                 </div>
               </div>
             ))}
