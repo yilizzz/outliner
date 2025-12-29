@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# What-If: AI Sci-Fi Inspiration & Outlining Tool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A full-stack creative tool that transforms real-world tech news into science fiction story seeds using AI.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🤖 AI-Powered Inspiration Engine
 
-## React Compiler
+**Automated Content Curation**: Leverages GitHub Actions to trigger a daily backend sync, fetching the latest tech news via RSS.
+**Intelligent Synthesis**: Integrated with LLM APIs to analyze raw articles and extract "Sci-Fi Seeds"—unique plot hooks and speculative concepts based on real-world emerging tech.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### ⚡ Frictionless Authentication
 
-## Expanding the ESLint configuration
+**PIN-Code Login**: Replaced traditional email/password complexity with a lightweight PIN verification system, optimizing the user experience for mobile creators and PWA environments.
+**Secure Access**: Implemented stateless authentication logic to ensure security without compromising the "instant-access" feel of a creative tool.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🎨 Advanced Interactive UI
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**D3.js Data Visualization**: Developed a custom D3.js-powered chart to represent story structure. It provides a bird's-eye view of chapter distribution and narrative weight.
+**Draggable Story Outlining**: Built a highly responsive Drag-and-Drop (DnD) interface, allowing writers to reorder story arcs and chapters intuitively, with real-time database synchronization.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🏗️ Technical Architecture
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```mermaid
+graph TD
+    %% Client Side
+    subgraph Client_Layer [Frontend: React PWA & Android]
+        User((User)) --> PWA[React / Vite App]
+        PWA --> D3[D3.js Visualization]
+        PWA --> DnD[Draggable Outline System]
+    end
+
+    %% Automation
+    subgraph Automation [GitHub Cloud]
+        GA[GitHub Actions] -->|Scheduled Cron| API
+    end
+
+    %% Backend
+    subgraph Backend_Layer [Backend: Directus & Node.js]
+        API[Custom Endpoints]
+        Auth[PIN-based Stateless Auth]
+        Worker[RSS Worker]
+        AI[AI Logic: LLM Analysis]
+    end
+
+    %% Infrastructure
+    subgraph Infrastructure [Cloud Infrastructure]
+        DB[(PostgreSQL on Railway)]
+        Vercel[Vercel Edge Network]
+    end
+
+    %% Connections
+    PWA <-->|REST API| API
+    GA -->|Secure Trigger| Worker
+    Worker -->|Fetch| RSS((External RSS Feeds))
+    Worker --> AI
+    AI -->|Upsert Insights| DB
+    API <--> DB
+
+    %% Styling
+    style Client_Layer fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style Backend_Layer fill:#e1f5fe,stroke:#01579b
+    style Automation fill:#fff3e0,stroke:#ff6f00
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📈 Technical Stack Summary
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+LayerTechnologyFrontend : React, Vite, PWA, Capacitor (Android), D3.js
+Backend : Directus (Headless CMS), Node.js
+Automation : GitHub Actions (Cron Jobs)
+AI : OpenAI / LLM Integration
+Deployment : Vercel (Frontend), Railway (Backend & PostgreSQL)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📱 Installation & Demo
+
+Live Demo: https://whatif42.vercel.app/
+Android App: Download the latest APK from the [Releases page](https://github.com/yilizzz/outliner/releases).
