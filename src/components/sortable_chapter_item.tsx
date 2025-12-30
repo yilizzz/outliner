@@ -38,7 +38,6 @@ export const SortableChapterItem = ({
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 100 : "auto",
   };
-  const preview = (chapter.content || "").slice(0, 20);
 
   // 阻止按钮区域触发拖拽
   const stopDragPropagation = (e: React.MouseEvent | React.TouchEvent) => {
@@ -56,7 +55,7 @@ export const SortableChapterItem = ({
             {chapter.title}
           </h3>
           <p className="text-xs text-dark-blue/60 truncate leading-tight mt-0.5">
-            {preview}
+            {chapter.content}
           </p>
         </div>
 
