@@ -12,8 +12,8 @@ import { useAuthStore } from "../stores/auth_store";
 import Input from "../components/ui/input";
 import { ConfirmDialog } from "../components/confirm_dialog";
 import { ErrorLine } from "../components/ui/error_line";
-import { Loader } from "../components/ui/loader";
 import { Button } from "../components/ui/button";
+import { ProjectsSkeleton } from "../components/ui/projects_skeleton";
 const Projects: React.FC = ({}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -66,9 +66,7 @@ const Projects: React.FC = ({}) => {
       setError(t("delete_failed"));
     }
   };
-  if (isLoading) {
-    return <Loader />;
-  }
+
   return (
     <div className="min-h-screen pt-12 pb-16 px-4 overflow-y-auto flex flex-col gap-4 max-w-6xl mx-auto">
       {projects.length > 9 ? (
@@ -100,14 +98,18 @@ const Projects: React.FC = ({}) => {
         <h3 className="text-base font-semibold text-dark-blue mb-4">
           {t("my_works")}
         </h3>
-        {projects.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">{t("work_empty")}</p>
+        {isLoading ? (
+          <ProjectsSkeleton />
+        ) : projects.length === 0 ? (
+          <p className="text-gray-500 text-center py-4 text-sm">
+            {t("work_empty")}
+          </p>
         ) : (
           <div className="space-y-2">
             {projects.map((project: any) => (
               <div
                 key={project.id}
-                className="flex flex-col items-center justify-between p-3 "
+                className="flex flex-col items-center justify-between p-3 bg-white rounded-lg "
               >
                 <div className="w-full flex items-center justify-between flex-nowrap">
                   <p className="text-sm font-normal text-dark-blue truncate">

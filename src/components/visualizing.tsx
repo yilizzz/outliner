@@ -1,19 +1,20 @@
 import React, { useMemo } from "react";
 
 import { useFetchProjectById } from "../queries/projects.queries";
-import { LoaderPinwheel } from "lucide-react";
+import { Loader } from "lucide-react";
 import { Lotus } from "./flowers/lotus";
 import { Dandelion } from "./flowers/dandelion";
 import { Ray } from "./flowers/ray";
 import { Sunflower } from "./flowers/sunflower";
 import { Swirl } from "./flowers/swirl";
 import { useInView } from "react-intersection-observer";
+import { useLanguage } from "../contexts/language_context";
 interface TreeProps {
   project_id: string;
 }
 export const Visualizing: React.FC<TreeProps> = ({ project_id }) => {
   const { data: project, isLoading } = useFetchProjectById(project_id);
-
+  const { t } = useLanguage();
   const baseSize = 280;
   const chapterCount = project?.chapters?.length || 0;
 
@@ -44,7 +45,7 @@ export const Visualizing: React.FC<TreeProps> = ({ project_id }) => {
         className="flex items-center justify-center"
         style={{ width: baseSize, height: baseSize }}
       >
-        <LoaderPinwheel className="animate-spin text-gray-400" />
+        <Loader className="animate-spin text-gray-400" />
       </div>
     );
   }
@@ -52,7 +53,9 @@ export const Visualizing: React.FC<TreeProps> = ({ project_id }) => {
   return (
     <div className="flex flex-col items-center justify-center">
       {chapterCount === 0 ? (
-        <div className="h-6" />
+        <p className="text-gray-500 text-center py-4 text-sm">
+          {t("chapter_empty")}
+        </p>
       ) : (
         /*  将 ref 挂载在包装层上 */
         <div

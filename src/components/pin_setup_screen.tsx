@@ -257,7 +257,7 @@ const PinSetupScreen: React.FC = () => {
                   {t("submit")}
                 </Button>
               </div>
-              {isProcessing && <Loader className="h-4 animate-spin" />}
+              {isProcessing && <Loader className="h-4!" />}
             </Form>
           )}
         </Formik>

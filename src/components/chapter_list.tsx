@@ -22,7 +22,8 @@ import { useState } from "react";
 import { SortableChapterItem } from "./sortable_chapter_item";
 import { GripVertical } from "lucide-react";
 import { Loader } from "../components/ui/loader";
-// 拖拽中的占位预览（可选）
+import { useLanguage } from "../contexts/language_context";
+// 拖拽中的占位预览
 const DragOverlayItem = ({
   chapter,
 }: {
@@ -45,6 +46,7 @@ const DragOverlayItem = ({
 
 // 主列表组件
 export const ChapterList = ({ projectId }: { projectId: string }) => {
+  const { t } = useLanguage();
   const { data: chapters = [], isLoading } =
     useFetchChaptersByProjectId(projectId);
 
@@ -98,7 +100,7 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
     updateOrder(updates);
   };
 
-  if (isLoading && chapters.length === 0) return <Loader />;
+  if (isLoading) return <Loader />;
 
   return (
     <DndContext
@@ -111,13 +113,19 @@ export const ChapterList = ({ projectId }: { projectId: string }) => {
         items={chapters.map((ch) => ch.id)}
         strategy={verticalListSortingStrategy}
       >
-        {chapters.map((chapter) => (
-          <SortableChapterItem
-            key={chapter.id}
-            chapter={chapter}
-            projectId={projectId}
-          />
-        ))}
+        {chapters.length === 0 ? (
+          <p className="text-gray-500 text-center py-4 text-sm">
+            {t("chapter_empty")}
+          </p>
+        ) : (
+          chapters.map((chapter) => (
+            <SortableChapterItem
+              key={chapter.id}
+              chapter={chapter}
+              projectId={projectId}
+            />
+          ))
+        )}
       </SortableContext>
 
       <DragOverlay>

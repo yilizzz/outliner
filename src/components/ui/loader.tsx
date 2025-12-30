@@ -11,7 +11,7 @@ export const Loader = React.forwardRef<HTMLDivElement, LoaderProps>(
         className={`flex justify-center items-center h-screen ${className}`}
         {...props}
       >
-        <LoaderPinwheel className="animate-spin text-dark-blue" size={24} />
+        <LoaderPinwheel className="animate-spin text-gray-400" size={24} />
       </div>
     );
   }

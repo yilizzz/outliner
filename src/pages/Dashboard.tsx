@@ -11,7 +11,6 @@ import { getRandomColor, lightColors } from "../utils/color_utils";
 import { generateTornEdge } from "../utils/torn_edge";
 import Input from "../components/ui/input";
 import { NewsItem } from "../components/news_item";
-import { Button } from "../components/ui/button";
 const Dashboard = () => {
   const { t, currentLang } = useLanguage();
   const limit = 6;
@@ -32,7 +31,7 @@ const Dashboard = () => {
   );
   // 2. 虚拟列表配置（单列动态高度版）
   const rowVirtualizer = useVirtualizer({
-    count: hasNextPage ? newsItems.length + 1 : newsItems.length,
+    count: hasNextPage ? newsItems.length + 1 : newsItems.length + 1,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 200, // 初始预估高度，稍后会被真实高度覆盖
     measureElement: (el) => el.getBoundingClientRect().height, // 关键：动态测量
@@ -48,7 +47,7 @@ const Dashboard = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isLoading && newsItems.length === 0) {
+  if (isLoading) {
     return <Loader />;
   }
 
@@ -107,7 +106,7 @@ const Dashboard = () => {
         }}
       >
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const isLoaderRow = virtualRow.index > newsItems.length - 1;
+          const isLoaderRow = virtualRow.index === newsItems.length;
           const item = newsItems[virtualRow.index];
 
           return (
@@ -121,8 +120,10 @@ const Dashboard = () => {
               }}
             >
               {isLoaderRow ? (
-                // 底部加载指示器/哨兵
-                <div ref={loadMoreRef} className="flex justify-center p-4">
+                <div
+                  ref={loadMoreRef}
+                  className="flex justify-center gap-4 mt-8 mb-8"
+                >
                   {hasNextPage ? (
                     <LoaderPinwheel className="animate-spin" />
                   ) : (
@@ -130,29 +131,11 @@ const Dashboard = () => {
                   )}
                 </div>
               ) : (
-                // 新闻卡片
-                <div className="p-2 h-full">
-                  <NewsItem item={item} itemStyles={itemStyles} />
-                </div>
+                <NewsItem item={item} itemStyles={itemStyles} />
               )}
             </div>
           );
         })}
-      </div>
-      {/* 加载更多按钮 */}
-      <div className="flex justify-center gap-4 mt-8 mb-8">
-        <Button
-          onClick={() => fetchNextPage()}
-          disabled={!hasNextPage || isFetchingNextPage}
-        >
-          {isFetchingNextPage ? (
-            <LoaderPinwheel className="animate-spin" />
-          ) : hasNextPage ? (
-            "More"
-          ) : (
-            t("no_more")
-          )}
-        </Button>
       </div>
       <ScrollToTopButton />
     </div>

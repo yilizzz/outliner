@@ -58,6 +58,7 @@ const Project: React.FC = () => {
     try {
       await updateProject({ id: project?.id, title: title.trim() });
       setIsEditing(false);
+      setError("");
     } catch (e) {
       setError(t("save_failed"));
     }
