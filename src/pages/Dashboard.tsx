@@ -127,7 +127,7 @@ const Dashboard = () => {
                   {hasNextPage ? (
                     <LoaderPinwheel className="animate-spin" />
                   ) : (
-                    t("no_more")
+                    <span className="text-dark-blue">{t("no_more")}</span>
                   )}
                 </div>
               ) : (

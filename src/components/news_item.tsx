@@ -28,8 +28,8 @@ export const NewsItem = React.memo(({ item, itemStyles }: NewsItemProps) => {
         className="absolute inset-0 bg-gray-300 opacity-40"
         style={{
           clipPath: itemStyles.clipPath,
-          transform: "translateY(4px) rotate(2deg)",
-          WebkitTransform: "translateY(4px) rotate(2deg)",
+          transform: "translateY(2px) rotate(1deg)",
+          WebkitTransform: "translateY(2px) rotate(1deg)",
         }}
       />
       <div

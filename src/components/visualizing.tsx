@@ -42,8 +42,8 @@ export const Visualizing: React.FC<TreeProps> = ({ project_id }) => {
   if (isLoading) {
     return (
       <div
-        className="flex items-center justify-center"
-        style={{ width: baseSize, height: baseSize }}
+        className="flex items-center justify-center w-full"
+        style={{ height: baseSize }}
       >
         <Loader className="animate-spin text-gray-400" />
       </div>
