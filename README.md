@@ -2,6 +2,19 @@
 
 > A full-stack creative tool that transforms real-world tech news into science fiction story seeds using AI.
 
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/9f36fa6c-9327-42c2-bdb7-6550932aa29d" 
+         autoplay 
+         loop 
+         muted 
+         playsinline 
+         controls 
+         width="400px">
+  </video>
+</div>
+
+
 ## ⚡ Key Features
 
 ### AI-Powered Inspiration Engine
@@ -72,3 +85,11 @@ Deployment : Vercel (Frontend), Railway (Backend & PostgreSQL)
 Live Demo: https://whatif42.vercel.app/
 
 Android App: Download the latest APK from the [Releases page](https://github.com/yilizzz/outliner/releases).
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/0191b910-a452-4011-80f0-17899517fddb" 
+       width="400" 
+       alt="Scan to try the app" />
+  <p>Scan to try the App</p>
+</div>
+
