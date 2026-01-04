@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import { SecureStorage, SECURE_KEYS } from "../utils/storage_utils";
+import { login } from "@directus/sdk";
 type Language = "en" | "zh";
 
 interface Translations {
@@ -24,6 +25,7 @@ const translations: Translations = {
   en: {
     set_pin: "For first-time use, please set an email and PIN for login",
     confirm_pin: "Confirm PIN",
+    login: "Login",
     button: "En",
     setup_error: "Error during setup. Please try again.",
     submit: "Submit",
@@ -51,7 +53,7 @@ const translations: Translations = {
     resetting_pin: "Resetting PIN...",
     reset_success: "PIN Reset Successful!",
     reset_success_desc:
-      "Your PIN has been reset. Please log in with your new PIN. Click menu",
+      "Your PIN has been reset. Please log in with your new PIN.",
     reset_failed: "Reset failed. Please try again.",
     invalid_reset_link: "Invalid or expired reset link.",
     error_data_lost: "Error: Data lost. Please try again.",
@@ -98,6 +100,7 @@ const translations: Translations = {
     set_pin: "首次使用，请设置邮箱和PIN码用于登录",
     confirm_pin: "确认 PIN",
     button: "中",
+    login: "登录",
     setup_error: "初始化过程中出现错误，请重试。",
     submit: "提交",
     home: "首页",
@@ -123,7 +126,7 @@ const translations: Translations = {
     new_pin: "新 PIN",
     resetting_pin: "正在重置 PIN...",
     reset_success: "PIN 重置成功！",
-    reset_success_desc: "您的 PIN 已重置。请使用新 PIN 登录，点击下方",
+    reset_success_desc: "您的 PIN 已重置。请使用新 PIN 登录。",
     reset_failed: "重置失败，请重试。",
     invalid_reset_link: "重置链接无效或已过期。",
     error_data_lost: "数据丢失错误，请重试。",

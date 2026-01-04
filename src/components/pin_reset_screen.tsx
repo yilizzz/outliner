@@ -173,10 +173,10 @@ const PinResetScreen: React.FC = () => {
           <h2 className="text-green-500 text-xl font-bold text-center">
             {t("reset_success")}
           </h2>
-          <p className="text-gray-600 text-sm text-center flex items-center justify-center gap-1">
+          <div className="text-gray-600 text-sm text-center">
             {t("reset_success_desc")}
-            <Bean />
-          </p>
+          </div>
+          <Button onClick={() => navigate("/dashboard")}>{t("login")}</Button>
         </div>
       </div>
     );
