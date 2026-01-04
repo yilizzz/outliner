@@ -6,15 +6,13 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useInView } from "react-intersection-observer";
 import ScrollToTopButton from "../components/ui/scroll_to_top_button";
 import { Loader } from "../components/ui/loader";
-import { Search, Delete, LoaderPinwheel, LogOut } from "lucide-react";
+import { Search, Delete, LoaderPinwheel } from "lucide-react";
 import { getRandomColor, lightColors } from "../utils/color_utils";
 import { generateTornEdge } from "../utils/torn_edge";
 import Input from "../components/ui/input";
 import { NewsItem } from "../components/news_item";
-import { useAuthStore } from "../stores/auth_store";
 const Dashboard = () => {
   const { t, currentLang } = useLanguage();
-  const { logout } = useAuthStore();
   const limit = 6;
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -58,18 +56,6 @@ const Dashboard = () => {
       ref={parentRef}
       className="relative min-h-screen pt-12 pb-16 px-4 overflow-y-auto"
     >
-      <div className="mb-4 max-w-6xl mx-auto">
-        <button
-          onClick={logout}
-          className="px-3 py-1 rounded-lg bg-red-500 text-white text-sm flex items-center gap-2"
-        >
-          <LogOut size={16} />
-          DEV: Logout
-        </button>
-      </div>
-
-      {/* 
-      {/* Filter按钮组 */}
       <div className="mb-6 flex flex-wrap gap-2 max-w-6xl mx-auto">
         {categories.map((category) => (
           <button
