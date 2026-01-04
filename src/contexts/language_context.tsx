@@ -50,7 +50,8 @@ const translations: Translations = {
     new_pin: "New PIN",
     resetting_pin: "Resetting PIN...",
     reset_success: "PIN Reset Successful!",
-    reset_success_desc: "Your PIN has been reset. Please return to the app and log in with your new PIN.",
+    reset_success_desc:
+      "Your PIN has been reset. Please log in with your new PIN. Click menu",
     reset_failed: "Reset failed. Please try again.",
     invalid_reset_link: "Invalid or expired reset link.",
     error_data_lost: "Error: Data lost. Please try again.",
@@ -122,7 +123,7 @@ const translations: Translations = {
     new_pin: "新 PIN",
     resetting_pin: "正在重置 PIN...",
     reset_success: "PIN 重置成功！",
-    reset_success_desc: "您的 PIN 已重置。请返回应用并使用新 PIN 登录。",
+    reset_success_desc: "您的 PIN 已重置。请使用新 PIN 登录，点击下方",
     reset_failed: "重置失败，请重试。",
     invalid_reset_link: "重置链接无效或已过期。",
     error_data_lost: "数据丢失错误，请重试。",

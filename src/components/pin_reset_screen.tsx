@@ -12,7 +12,7 @@ import { useSecureData } from "../stores/secure_data_store";
 import { useAuthStore } from "../stores/auth_store";
 import { expiresAbsolute } from "../utils/expires_utils";
 import { useLanguage } from "../contexts/language_context";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Bean } from "lucide-react";
 import { ErrorLine } from "./ui/error_line";
 import { Button } from "./ui/button";
 import { Loader } from "./ui/loader";
@@ -30,6 +30,7 @@ const PinResetScreen: React.FC = () => {
   const [isVerifying, setIsVerifying] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [showEnvWarning, setShowEnvWarning] = useState(false);
 
   const token = searchParams.get("token");
   const email = searchParams.get("email");
@@ -47,6 +48,12 @@ const PinResetScreen: React.FC = () => {
 
   // Verify token on mount
   useEffect(() => {
+    // Warn users if they are inside an in-app browser instead of installed PWA/primary browser
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone;
+    setShowEnvWarning(!isStandalone);
+
     const verifyToken = async () => {
       if (!token || !email) {
         setError(t("invalid_reset_link"));
@@ -166,8 +173,9 @@ const PinResetScreen: React.FC = () => {
           <h2 className="text-green-500 text-xl font-bold text-center">
             {t("reset_success")}
           </h2>
-          <p className="text-gray-600 text-sm text-center">
+          <p className="text-gray-600 text-sm text-center flex items-center justify-center gap-1">
             {t("reset_success_desc")}
+            <Bean />
           </p>
         </div>
       </div>
@@ -184,6 +192,12 @@ const PinResetScreen: React.FC = () => {
         <p className="text-gray-600 text-sm text-center">
           {t("reset_pin_desc")}
         </p>
+
+        {showEnvWarning && (
+          <div className="w-full bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded-lg">
+            Tip: Open this link in the installed app, please.
+          </div>
+        )}
 
         {error && <ErrorLine>{error}</ErrorLine>}
 
