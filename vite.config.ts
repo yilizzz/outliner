@@ -10,9 +10,13 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      // 这里让插件在开发模式下也能测试（可选）
+      // 开发模式禁用PWA
       devOptions: {
-        enabled: true,
+        enabled: false,
+      },
+      workbox: {
+        navigateFallback: "index.html",
+        navigateFallbackDenylist: [/^\/(?:__|\.)/, /\.\w+$/, /^\/admin/],
       },
       manifest: {
         name: "What-If: AI Sci-Fi Inspiration & Outlining Tool",

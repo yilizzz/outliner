@@ -74,8 +74,7 @@ const PinUnlockScreen: React.FC = () => {
         }
 
         // 3. 准备登录数据
-        const { username, password } = decryptedCredentials;
-        const email = `${username}@example.com`;
+        const { email, password } = decryptedCredentials;
 
         // 4. 发起请求阶段
         const res = await fetch(
@@ -158,6 +157,14 @@ const PinUnlockScreen: React.FC = () => {
         <p className="text-center text-sm text-gray-400 mt-6">
           {isProcessing ? `${t("processing")}` : ""}
         </p>
+
+        <button
+          onClick={() => navigate("/pin-forgot")}
+          className="text-sm text-dark-blue hover:underline mt-4"
+          disabled={isProcessing}
+        >
+          {t("forgot_pin")}
+        </button>
       </div>
     </div>
   );

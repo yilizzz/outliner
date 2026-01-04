@@ -16,7 +16,7 @@ const Home: React.FC = () => {
     );
   }
 
-  //如果已登录，重定向到 dashboard
+  // 如果已登录，重定向到 dashboard
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }

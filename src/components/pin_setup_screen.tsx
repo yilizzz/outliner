@@ -24,6 +24,7 @@ const ITERATIONS = 200000;
 const PinSetupScreen: React.FC = () => {
   const { t, currentLang } = useLanguage();
   interface Values {
+    email: string;
     pin: string;
     confirmPin: string;
   }
@@ -36,6 +37,9 @@ const PinSetupScreen: React.FC = () => {
 
   const getPinSetSchema = () =>
     Yup.object().shape({
+      email: Yup.string()
+        .required(t("yup_required"))
+        .email(t("yup_email_invalid")),
       pin: Yup.string()
         .required(t("yup_required"))
         .matches(/^\d{4}$/, t("yup_pin_format")),
@@ -46,15 +50,12 @@ const PinSetupScreen: React.FC = () => {
     });
 
   const credentials = {
-    generateCredentials: async () => ({
-      username: `user_${crypto.randomUUID()}`,
-      password: `${crypto.randomUUID()}`,
-    }),
+    generatePassword: async () => `${crypto.randomUUID()}`,
     encryptData: encryptData,
     decryptData: decryptData,
   };
   const handleSetupComplete = useCallback(
-    async (finalPin: string) => {
+    async (finalPin: string, userEmail: string) => {
       if (isProcessing) return;
       setIsProcessing(true);
       setError(null);
@@ -69,7 +70,7 @@ const PinSetupScreen: React.FC = () => {
 
           saltBuffer = generateSalt();
           derivedKey = await deriveKey(finalPin, saltBuffer, ITERATIONS);
-        } catch (e) {
+        } catch (e: any) {
           // 如果是环境问题
           if (e.message === "CRYPTO_NOT_AVAILABLE") {
             throw new Error("ENV_UNSUPPORTED");
@@ -79,12 +80,12 @@ const PinSetupScreen: React.FC = () => {
         }
 
         // --- 阶段 2: 远程账户创建 ---
-        const { username, password } = await credentials.generateCredentials();
+        const password = await credentials.generatePassword();
         let newUser;
         try {
           newUser = await directus.request(
             createUser({
-              email: `${username}@example.com`,
+              email: userEmail,
               password: password,
               role: import.meta.env.VITE_DIRECTUS_ROLE_ID,
               status: "active",
@@ -95,7 +96,6 @@ const PinSetupScreen: React.FC = () => {
         }
 
         await saveUserIdToStorage(newUser.id);
-        const email = `${username}@example.com`;
 
         // --- 阶段 3: 获取访问令牌 (Auth) ---
         let authResponse;
@@ -105,7 +105,7 @@ const PinSetupScreen: React.FC = () => {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password }),
+              body: JSON.stringify({ email: userEmail, password }),
             }
           );
           if (!res.ok) throw new Error();
@@ -129,9 +129,9 @@ const PinSetupScreen: React.FC = () => {
             createItem("projects", {
               title: projectTitle,
               user_created: newUser.id,
-            })
+            } as any)
           );
-          const project = createdProject?.id;
+          const project = (createdProject as any)?.id;
 
           await directus.request(
             createItems("chapters", [
@@ -145,7 +145,7 @@ const PinSetupScreen: React.FC = () => {
         // --- 阶段 5: 本地持久化存储 ---
         try {
           const encryptedCredentials = await credentials.encryptData(
-            { username, password },
+            { email: userEmail, password },
             derivedKey
           );
           const saltBase64 = CryptoHelpers.bufferToBase64Url(saltBuffer);
@@ -205,16 +205,32 @@ const PinSetupScreen: React.FC = () => {
         {error && <ErrorLine>{error}</ErrorLine>}
         <Formik
           initialValues={{
+            email: "",
             pin: "",
             confirmPin: "",
           }}
           validationSchema={getPinSetSchema()}
           onSubmit={(values: Values) => {
-            handleSetupComplete(values.pin);
+            handleSetupComplete(values.pin, values.email);
           }}
         >
           {({ errors, touched }) => (
             <Form className="w-full flex flex-col justify-start items-start gap-4">
+              <div className="w-full flex flex-col justify-start items-start gap-1.5">
+                <label htmlFor="email" className="text-dark-blue text-sm">
+                  Email
+                </label>
+                <Field
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder={t("placeholder_email")}
+                  className="w-full h-10 px-3 border border-dark-blue rounded-lg focus:outline-none focus:ring-3 focus:ring-light-blue"
+                />
+                {errors.email && touched.email ? (
+                  <ErrorLine>{errors.email}</ErrorLine>
+                ) : null}
+              </div>
               <div className="w-full flex flex-col justify-start items-start gap-1.5">
                 <label htmlFor="pin" className="text-dark-blue text-sm">
                   Pin
@@ -244,16 +260,7 @@ const PinSetupScreen: React.FC = () => {
                 ) : null}
               </div>
               <div className="w-full text-center">
-                <Button
-                  type="submit"
-                  disabled={
-                    (errors.confirmPin && touched.confirmPin) ||
-                    (errors.pin && touched.pin) ||
-                    !touched.pin ||
-                    !touched.confirmPin ||
-                    isProcessing
-                  }
-                >
+                <Button type="submit" disabled={isProcessing}>
                   {t("submit")}
                 </Button>
                 {isProcessing && <Loader className="h-4! mt-2" />}
