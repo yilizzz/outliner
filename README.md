@@ -2,7 +2,6 @@
 
 > A full-stack creative tool that transforms real-world tech news into science fiction story seeds using AI.
 
-
 <div align="center">
   <video src="https://github.com/user-attachments/assets/9f36fa6c-9327-42c2-bdb7-6550932aa29d" 
          autoplay 
@@ -13,7 +12,6 @@
          width="400px">
   </video>
 </div>
-
 
 ## ⚡ Key Features
 
@@ -80,16 +78,32 @@ AI : OpenAI / LLM Integration
 
 Deployment : Vercel (Frontend), Railway (Backend & PostgreSQL)
 
-## 📱 Installation & Demo
+## 📱 Installation & Usage
 
-Live Demo: https://whatif42.vercel.app/
+### 🌐 Web App (PWA)
 
-Android App: Download the latest APK from the [Releases page](https://github.com/yilizzz/outliner/releases).
+**Live Demo**: https://whatif42.vercel.app/
 
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/0191b910-a452-4011-80f0-17899517fddb" 
-       width="400" 
-       alt="Scan to try the app" />
-  <p>Scan to try the App</p>
-</div>
+This app is built as a **Progressive Web App (PWA)**, which means you can install it directly to your device for a native app-like experience:
 
+#### 📲 Install on Mobile (iOS/Android)
+
+1. Open https://whatif42.vercel.app/ in your mobile browser (Safari for iOS, Chrome for Android)
+2. **On iOS**: Tap the Share button → Select "Add to Home Screen"
+3. **On Android**: Tap the menu (⋮) → Select "Install app" or "Add to Home Screen"
+4. The app icon will appear on your home screen with full-screen support
+
+#### 💻 Install on Desktop (Chrome/Edge)
+
+1. Visit https://whatif42.vercel.app/ in Chrome or Edge
+2. Look for the **install icon** (⊕) in the address bar
+3. Click "Install" to add the app to your desktop
+4. Launch from Start Menu (Windows) or Applications (Mac)
+
+### ✨ PWA Benefits
+
+- **Offline Support**: Access your stories even without internet connection
+- **Fast Loading**: Cached resources for instant startup
+- **Native Feel**: Full-screen experience without browser UI
+- **Auto Updates**: Always get the latest features seamlessly
+- **Cross-Platform**: One app works on iOS, Android, Windows, Mac, and Linux
