@@ -133,6 +133,33 @@ const PinResetScreen: React.FC = () => {
 
         await saveInitialData(saltBase64, credentialsToStore);
 
+        // Step 3: Auto-login with new credentials
+        try {
+          const loginRes = await fetch(
+            `${import.meta.env.VITE_DIRECTUS_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password: newPassword }),
+            }
+          );
+
+          if (loginRes.ok) {
+            const authResponse = await loginRes.json();
+            if (authResponse?.data?.access_token) {
+              const auth = {
+                access_token: authResponse.data.access_token,
+                refresh_token: authResponse.data.refresh_token,
+                expires: expiresAbsolute(authResponse.data.expires),
+              };
+              loginWithAuth(auth);
+            }
+          }
+        } catch (loginError) {
+          console.error("Auto-login after reset failed:", loginError);
+          // Don't fail the entire flow if auto-login fails
+        }
+
         setResetSuccess(true);
       } catch (e: any) {
         setError(t("reset_failed"));
