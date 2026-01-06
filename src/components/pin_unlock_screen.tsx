@@ -75,6 +75,7 @@ const PinUnlockScreen: React.FC = () => {
 
         // 3. 准备登录数据
         const { email, password } = decryptedCredentials;
+        console.log("[PIN Unlock] Attempting login with email:", email);
 
         // 4. 发起请求阶段
         const res = await fetch(
@@ -88,13 +89,18 @@ const PinUnlockScreen: React.FC = () => {
 
         // 处理 HTTP 错误状态
         if (!res.ok) {
+          console.error("[PIN Unlock] Login failed with status:", res.status);
+          const errorData = await res.text();
+          console.error("[PIN Unlock] Error response:", errorData);
           throw new Error("SERVER_ERROR");
         }
 
         const authResponse = await res.json();
+        console.log("[PIN Unlock] Login successful");
 
         // 安全性校验：确保返回了 token
         if (!authResponse?.data?.access_token) {
+          console.error("[PIN Unlock] No access token in response");
           throw new Error("UNEXPECTED_RESPONSE");
         }
 

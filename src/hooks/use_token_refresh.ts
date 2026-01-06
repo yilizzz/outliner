@@ -4,11 +4,16 @@ import { expiresAbsolute } from "../utils/expires_utils";
 // 预留一些时间用于网络延迟，避免在最后一刻过期
 const TOKEN_EXPIRY_THRESHOLD = 2 * 60 * 1000;
 
-export const useTokenRefresh = () => {
+export const useTokenRefresh = (pathname: string) => {
   const { auth, isAuthenticated, refreshToken, logout } = useAuthStore();
 
   const timerRef = useRef<number | null>(null);
   const isRefreshingRef = useRef(false);
+
+  // 判断当前路由是否应该跳过 token 刷新
+  const shouldSkipTokenRefresh = ["/pin-reset", "/pin-forgot"].some((path) =>
+    pathname.startsWith(path)
+  );
 
   const clearTimer = () => {
     if (timerRef.current) {
@@ -94,12 +99,20 @@ export const useTokenRefresh = () => {
 
   // 在 auth 变化时（比如登录/刷新/登出）重新安排定时器
   useEffect(() => {
+    if (shouldSkipTokenRefresh) {
+      clearTimer();
+      return;
+    }
     scheduleRefresh();
     return () => clearTimer();
-  }, [auth, isAuthenticated, scheduleRefresh]);
+  }, [auth, isAuthenticated, scheduleRefresh, shouldSkipTokenRefresh]);
 
   // 当页面从后台恢复时立即检查（防止 setTimeout 被浏览器节流）
   useEffect(() => {
+    if (shouldSkipTokenRefresh) {
+      return;
+    }
+
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
         checkAndRefreshToken();
@@ -114,7 +127,7 @@ export const useTokenRefresh = () => {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("focus", onFocus);
     };
-  }, [checkAndRefreshToken]);
+  }, [checkAndRefreshToken, shouldSkipTokenRefresh]);
 
   return { checkAndRefreshToken, scheduleRefresh };
 };

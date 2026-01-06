@@ -10,14 +10,8 @@ import PinResetScreen from "../components/pin_reset_screen";
 export default function App() {
   const location = useLocation();
 
-  // 不对pin-reset和pin-forgot路由进行token刷新
-  const shouldSkipTokenRefresh = ["/pin-reset", "/pin-forgot"].some((path) =>
-    location.pathname.startsWith(path)
-  );
-
-  if (!shouldSkipTokenRefresh) {
-    useTokenRefresh();
-  }
+  // 总是调用 Hook（遵守 React Hook 规则），在 Hook 内部根据路由决定行为
+  useTokenRefresh(location.pathname);
 
   return (
     <Routes>
