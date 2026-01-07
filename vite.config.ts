@@ -10,10 +10,6 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      strategies: "injectManifest",
-      injectManifest: {
-        injectionPoint: undefined,
-      },
       // 开发模式禁用PWA
       devOptions: {
         enabled: false,
