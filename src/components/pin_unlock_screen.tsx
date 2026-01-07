@@ -13,7 +13,7 @@ const PinUnlockScreen: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { loadInitialData } = useSecureData();
-  const loginWithAuth = useAuthStore.getState().loginWithAuth;
+  const { loginWithAuth, saveUserIdToStorage } = useAuthStore.getState();
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -109,6 +109,24 @@ const PinUnlockScreen: React.FC = () => {
           refresh_token: authResponse.data.refresh_token,
           expires: expiresAbsolute(authResponse.data.expires),
         };
+
+        // 获取当前用户 ID 并持久化，避免 userId 为空导致 projects 过滤不到数据
+        try {
+          const meRes = await fetch(
+            `${import.meta.env.VITE_DIRECTUS_URL}/users/me?fields=id`,
+            {
+              headers: {
+                Authorization: `Bearer ${auth.access_token}`,
+              },
+            }
+          );
+          const meData = await meRes.json();
+          if (meData?.data?.id) {
+            await saveUserIdToStorage(meData.data.id);
+          }
+        } catch (e) {
+          console.warn("Failed to fetch user id after login", e);
+        }
 
         loginWithAuth(auth);
         navigate("/dashboard");
