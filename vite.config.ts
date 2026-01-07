@@ -10,6 +10,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      strategies: "injectManifest",
+      injectManifest: {
+        injectionPoint: undefined,
+      },
       // 开发模式禁用PWA
       devOptions: {
         enabled: false,
@@ -17,6 +21,19 @@ export default defineConfig({
       workbox: {
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/(?:__|\.)/, /\.\w+$/, /^\/admin/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\/api\/.*/,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 300, // 5分钟
+              },
+            },
+          },
+        ],
       },
       manifest: {
         name: "What-If: AI Sci-Fi Inspiration & Outlining Tool",
