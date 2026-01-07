@@ -11,6 +11,7 @@ export const useFetchUserProjects = (userId: string | null) => {
         readItems("projects", {
           filter: { user_created: { _eq: userId } },
           fields: ["id", "title", "date_created", "date_updated"],
+          limit: -1,
           sort: ["-date_created"],
         })
       );
