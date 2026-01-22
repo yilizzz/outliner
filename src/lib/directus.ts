@@ -19,20 +19,6 @@ export interface Schema {
 }
 export const directus = createDirectus<Schema>(
   import.meta.env.VITE_DIRECTUS_URL,
-  {
-    globals: {
-      fetch: (url, options) => {
-        return fetch(url, {
-          ...options,
-          headers: {
-            ...options?.headers,
-            // 告诉 Ngrok 跳过浏览器警告页
-            "ngrok-skip-browser-warning": "69420",
-          },
-        });
-      },
-    },
-  },
 )
   .with(rest())
   .with(authentication());
