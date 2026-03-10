@@ -75,35 +75,3 @@ Backend : Directus (Headless CMS), Node.js
 Automation : GitHub Actions (Cron Jobs)
 
 AI : OpenAI / LLM Integration
-
-Deployment : Vercel (Frontend), Railway (Backend & PostgreSQL)
-
-## 📱 Installation & Usage
-
-### 🌐 Web App (PWA)
-
-**Live Demo**: https://whatif42.vercel.app/
-
-This app is built as a **Progressive Web App (PWA)**, which means you can install it directly to your device for a native app-like experience:
-
-#### 📲 Install on Mobile (iOS/Android)
-
-1. Open https://whatif42.vercel.app/ in your mobile browser (Safari for iOS, Chrome for Android)
-2. **On iOS**: Tap the Share button → Select "Add to Home Screen"
-3. **On Android**: Tap the menu (⋮) → Select "Install app" or "Add to Home Screen"
-4. The app icon will appear on your home screen with full-screen support
-
-#### 💻 Install on Desktop (Chrome/Edge)
-
-1. Visit https://whatif42.vercel.app/ in Chrome or Edge
-2. Look for the **install icon** (⊕) in the address bar
-3. Click "Install" to add the app to your desktop
-4. Launch from Start Menu (Windows) or Applications (Mac)
-
-### ✨ PWA Benefits
-
-- **Offline Support**: Access your stories even without internet connection
-- **Fast Loading**: Cached resources for instant startup
-- **Native Feel**: Full-screen experience without browser UI
-- **Auto Updates**: Always get the latest features seamlessly
-- **Cross-Platform**: One app works on iOS, Android, Windows, Mac, and Linux
